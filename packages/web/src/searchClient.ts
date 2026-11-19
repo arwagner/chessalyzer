@@ -5,7 +5,7 @@ export type SearchRequest = {
 	readonly fen: string;
 	readonly algorithm: Algorithm;
 	readonly depth: number;
-	/** Left out to let the server pick one; it echoes the seed it used in the result. */
+	/** Optional because only the random algorithm uses it; left out of the body when not given. */
 	readonly seed?: number;
 };
 

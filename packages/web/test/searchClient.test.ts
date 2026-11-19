@@ -83,13 +83,13 @@ describe("runSearch request", () => {
 
 describe("runSearch response", () => {
 	test("a 200 is parsed to the search result", async () => {
-		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: 7 }));
+		const { fetchFn } = stubFetch(json(200, RESULT));
 		const outcome = await runSearch(
 			{ fen: START, algorithm: "minimax", depth: 1 },
 			fetchFn,
 		);
 
-		expect(outcome).toEqual({ ok: true, result: { ...RESULT, seed: 7 } });
+		expect(outcome).toEqual({ ok: true, result: RESULT });
 	});
 
 	test("a 400 is surfaced with the server's message", async () => {
