@@ -1,7 +1,8 @@
 # Agents in chessalyzer
 
 A TypeScript frontend and backend for editing and studying chess search algorithms (minimax, alpha-beta,
-move ordering, transposition tables, ...) in a UI. Read README.md first.
+move ordering, transposition tables, ...) in a UI. Read README.md first, and use words the way
+[GLOSSARY.md](GLOSSARY.md) defines them.
 
 Work arrives through aint-farm (arwagner/aint-farm): GitHub issues labelled `agent:explore`,
 `agent:implement`, `agent:implement-spec` and PRs labelled `agent:review`. Issues and specs live on this
