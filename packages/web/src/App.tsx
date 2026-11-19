@@ -13,7 +13,7 @@ import {
 export const START_FEN =
 	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-/** The algorithms offered in the picker; more join as the engine gains them. */
+/** Only random for now, as the ticket asks, though the engine also runs minimax; more join in later tickets. */
 const ALGORITHMS: readonly Algorithm[] = ["random"];
 
 // The server rejects anything deeper: the trace grows too big to send or draw.
