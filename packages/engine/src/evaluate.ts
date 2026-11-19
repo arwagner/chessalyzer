@@ -11,8 +11,9 @@ export const PIECE_VALUES = {
 } as const;
 
 /**
- * The score of a checkmate, from the mated side's opponent's point of view. Far beyond any material
- * total, so that searches which subtract the distance to mate still rank every mate above any material.
+ * The magnitude of the mate score. `evaluate` signs it from White's point of view and `evaluateAtPly`
+ * adjusts it by the distance to mate; it is far beyond any material total so that every adjusted mate
+ * still ranks above any material.
  */
 export const MATE_SCORE = 100_000;
 

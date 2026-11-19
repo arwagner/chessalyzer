@@ -1,4 +1,4 @@
-/** Placeholder until the search lands; lets other workspaces prove they can import the engine. */
+/** Lets other workspaces prove they resolve the engine by package name before they use its API. */
 export const engineName = "chessalyzer-engine";
 
 export {
