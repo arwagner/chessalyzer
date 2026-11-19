@@ -1,11 +1,13 @@
 import type { Position } from "./position.ts";
 
-export type Algorithm = "minimax" | "alphabeta";
+export type Algorithm = "random" | "minimax" | "alphabeta";
 
 export type SearchOptions = {
 	readonly algorithm: Algorithm;
 	/** Plies to search below the root; 0 scores the root by evaluation alone. */
 	readonly depth: number;
+	/** Seeds the PRNG of algorithms that choose at random, so the same seed replays the same search. */
+	readonly seed: number;
 };
 
 /** Alpha/beta bounds. Finite (see `SCORE_BOUND`) so a trace survives JSON. */
@@ -47,5 +49,5 @@ export type SearchResult = {
 /** One algorithm. `search` validates the options before calling it. */
 export type SearchAlgorithm = (
 	position: Position,
-	depth: number,
+	options: SearchOptions,
 ) => SearchResult;

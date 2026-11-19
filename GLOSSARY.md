@@ -10,7 +10,7 @@ comment, it means exactly this.
 - **mate score**: the score given to a checkmated position. It is larger in magnitude than any material
   evaluation, positive when White has mated and negative when Black has, and is adjusted by the distance to
   mate so a faster mate scores better than a slower one.
-- **algorithm**: a named search implementation, selected by name: `minimax` or `alphabeta`.
+- **algorithm**: a named search implementation, selected by name: `random`, `minimax` or `alphabeta`.
 - **depth**: the number of plies (half-moves) left to search from a node. A node at depth 0 is scored by the
   evaluation instead of being expanded.
 - **search**: running an algorithm on a position: `search(position, options) => SearchResult`, where
