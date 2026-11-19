@@ -31,5 +31,24 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["packages/engine/**", "!packages/engine/src/position.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {
+									"chess.js": "Only packages/engine/src/position.ts may import chess.js; use its exports instead."
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]
 }
