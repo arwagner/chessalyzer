@@ -1,0 +1,17 @@
+{
+	"name": "@chessalyzer/server",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Node HTTP API that runs engine searches",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"@chessalyzer/engine": "0.1.0"
+	},
+	"scripts": {
+		"start": "node src/main.ts",
+		"dev": "node --watch src/main.ts --port 3001"
+	}
+}
