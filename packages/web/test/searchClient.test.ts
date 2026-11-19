@@ -89,7 +89,27 @@ describe("runSearch response", () => {
 			fetchFn,
 		);
 
-		expect(outcome).toEqual({ ok: true, result: RESULT });
+		expect(outcome).toEqual({ ok: true, result: RESULT, seed: undefined });
+	});
+
+	test("a 200 carries the seed the server reports alongside the result", async () => {
+		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: 1234 }));
+		const outcome = await runSearch(
+			{ fen: START, algorithm: "random", depth: 1 },
+			fetchFn,
+		);
+
+		expect(outcome.ok && outcome.seed).toBe(1234);
+	});
+
+	test("a seed that is not a number is not reported", async () => {
+		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: "1234" }));
+		const outcome = await runSearch(
+			{ fen: START, algorithm: "random", depth: 1 },
+			fetchFn,
+		);
+
+		expect(outcome.ok && outcome.seed).toBeUndefined();
 	});
 
 	test("a 400 is surfaced with the server's message", async () => {

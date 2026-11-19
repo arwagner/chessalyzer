@@ -29,7 +29,15 @@ export type SearchError = {
 };
 
 export type SearchOutcome =
-	| { readonly ok: true; readonly result: SearchResult }
+	| {
+			readonly ok: true;
+			readonly result: SearchResult;
+			/**
+			 * The seed the server ran with, picked by it when the request had none, so the user can replay the
+			 * search. Undefined if the server did not report one.
+			 */
+			readonly seed: number | undefined;
+	  }
 	| { readonly ok: false; readonly error: SearchError };
 
 const SEARCH_PATH = "/api/search";
@@ -60,7 +68,7 @@ export async function runSearch(
 
 	if (response.ok) {
 		return isSearchResult(body)
-			? { ok: true, result: body }
+			? { ok: true, result: body, seed: reportedSeed(body) }
 			: fail(
 					"server",
 					`server responded ${response.status} without a search result`,
@@ -84,6 +92,11 @@ function isSearchResult(body: unknown): body is SearchResult {
 		trace !== null &&
 		"root" in trace
 	);
+}
+
+function reportedSeed(body: unknown): number | undefined {
+	const seed = asRecord(body)?.seed;
+	return typeof seed === "number" ? seed : undefined;
 }
 
 function errorMessage(body: unknown): string | undefined {

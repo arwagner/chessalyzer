@@ -7,6 +7,7 @@ if (!root) throw new Error("index.html is missing #root");
 
 createRoot(root).render(
 	<StrictMode>
-		<App />
+		{/* Wrapped so fetch is called on its own, never as a method of something else. */}
+		<App fetchFn={(url, init) => fetch(url, init)} />
 	</StrictMode>,
 );
