@@ -1,4 +1,4 @@
-import { evaluate } from "./evaluate.ts";
+import { evaluate, evaluateAtPly } from "./evaluate.ts";
 import { legalMoves, type Position, play } from "./position.ts";
 import type { SearchOptions, SearchResult, TraceNode } from "./trace.ts";
 
@@ -38,7 +38,7 @@ export function random(
 			depth: depth - 1,
 			entry: null,
 			exit: null,
-			score: i === chosen ? evaluate(fen) : null,
+			score: i === chosen ? evaluateAtPly(fen, 1) : null,
 			pruned: false,
 			children: [],
 		};

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { evaluate } from "../src/evaluate.ts";
+import { evaluate, MATE_SCORE } from "../src/evaluate.ts";
 import { play } from "../src/position.ts";
 import { mulberry32 } from "../src/random.ts";
 import { search } from "../src/search.ts";
@@ -28,6 +28,17 @@ describe("search with random", () => {
 		expect(chosen.map((c) => c.move)).toEqual([bestMove]);
 		expect(score).toBe(evaluate(play(trace.root.fen, bestMove)));
 		expect(trace.root.score).toBe(score);
+	});
+
+	test("a mate it happens to pick is scored by distance, as minimax scores it", () => {
+		// Back-rank mate: Ra8# for White. Seeds are tried until one picks it, so the test does not rest on
+		// one seed's choice.
+		const position = parsed("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
+		const mating = Array.from({ length: 200 }, (_, seed) =>
+			search(position, randomly(seed)),
+		).find((r) => r.bestMove === "Ra8#");
+		if (mating === undefined) throw new Error("no seed picked the mate");
+		expect(mating.score).toBe(MATE_SCORE - 1);
 	});
 
 	test("ids are unique and assigned in visit order, children in move order", () => {
