@@ -32,11 +32,8 @@ export type SearchOutcome =
 	| {
 			readonly ok: true;
 			readonly result: SearchResult;
-			/**
-			 * The seed the server ran with, picked by it when the request had none, so the user can replay the
-			 * search. Undefined if the server did not report one.
-			 */
-			readonly seed: number | undefined;
+			/** The seed the server ran with, picked by it when the request had none, so the user can replay the search. */
+			readonly seed: number;
 	  }
 	| { readonly ok: false; readonly error: SearchError };
 
@@ -68,7 +65,7 @@ export async function runSearch(
 
 	if (response.ok) {
 		return isSearchResult(body)
-			? { ok: true, result: body, seed: reportedSeed(body) }
+			? { ok: true, result: body, seed: body.seed }
 			: fail(
 					"server",
 					`server responded ${response.status} without a search result`,
@@ -81,22 +78,20 @@ export async function runSearch(
 }
 
 // A shallow check: the server is ours, so this guards against a proxy's or dev server's page, not a
-// malformed trace.
-function isSearchResult(body: unknown): body is SearchResult {
+// malformed trace. The seed is required because the server always reports the one it ran with.
+function isSearchResult(
+	body: unknown,
+): body is SearchResult & { readonly seed: number } {
 	const record = asRecord(body);
 	if (record === undefined) return false;
-	const { score, trace } = record;
+	const { score, trace, seed } = record;
 	return (
 		typeof score === "number" &&
+		typeof seed === "number" &&
 		typeof trace === "object" &&
 		trace !== null &&
 		"root" in trace
 	);
-}
-
-function reportedSeed(body: unknown): number | undefined {
-	const seed = asRecord(body)?.seed;
-	return typeof seed === "number" ? seed : undefined;
 }
 
 function errorMessage(body: unknown): string | undefined {

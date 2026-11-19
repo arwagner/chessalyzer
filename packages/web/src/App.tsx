@@ -21,7 +21,7 @@ const DEPTHS = [1, 2, 3, 4, 5] as const;
 
 type Shown = {
 	readonly result: SearchResult;
-	readonly seed: number | undefined;
+	readonly seed: number;
 	readonly expanded: Expanded;
 	readonly selected: number;
 };
@@ -133,7 +133,7 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 				<p>
 					Best move <strong>{shown.result.bestMove ?? "none"}</strong>, score{" "}
 					<strong>{shown.result.score}</strong>, seed{" "}
-					<strong>{shown.seed ?? "unknown"}</strong>
+					<strong>{shown.seed}</strong>
 				</p>
 			)}
 			<div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>

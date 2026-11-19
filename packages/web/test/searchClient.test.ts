@@ -82,34 +82,37 @@ describe("runSearch request", () => {
 });
 
 describe("runSearch response", () => {
-	test("a 200 is parsed to the search result", async () => {
-		const { fetchFn } = stubFetch(json(200, RESULT));
-		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 1 },
-			fetchFn,
-		);
-
-		expect(outcome).toEqual({ ok: true, result: RESULT, seed: undefined });
-	});
-
-	test("a 200 carries the seed the server reports alongside the result", async () => {
+	test("a 200 is parsed to the search result and the seed the server ran with", async () => {
 		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: 1234 }));
 		const outcome = await runSearch(
 			{ fen: START, algorithm: "random", depth: 1 },
 			fetchFn,
 		);
 
-		expect(outcome.ok && outcome.seed).toBe(1234);
+		expect(outcome).toEqual({
+			ok: true,
+			result: { ...RESULT, seed: 1234 },
+			seed: 1234,
+		});
 	});
 
-	test("a seed that is not a number is not reported", async () => {
-		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: "1234" }));
+	test.each([
+		["missing", RESULT],
+		["not a number", { ...RESULT, seed: "1234" }],
+	])("a 200 whose seed is %s is a server error", async (_, body) => {
+		const { fetchFn } = stubFetch(json(200, body));
 		const outcome = await runSearch(
 			{ fen: START, algorithm: "random", depth: 1 },
 			fetchFn,
 		);
 
-		expect(outcome.ok && outcome.seed).toBeUndefined();
+		expect(outcome).toEqual({
+			ok: false,
+			error: {
+				kind: "server",
+				message: "server responded 200 without a search result",
+			},
+		});
 	});
 
 	test("a 400 is surfaced with the server's message", async () => {
