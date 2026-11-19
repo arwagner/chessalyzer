@@ -1,4 +1,14 @@
-import { engineName } from "@chessalyzer/engine";
-
-/** Placeholder until the HTTP API lands; proves the engine resolves by workspace name. */
-export const serverUses = engineName;
+export { DEFAULT_PORT, portFrom } from "./port.ts";
+export {
+	ALGORITHMS,
+	MAX_DEPTH,
+	parseSearchRequest,
+	type RequestResult,
+	type SearchRequest,
+} from "./request.ts";
+export {
+	createServer,
+	type RunningServer,
+	type ServerDeps,
+	startServer,
+} from "./server.ts";

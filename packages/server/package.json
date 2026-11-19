@@ -9,5 +9,8 @@
 	},
 	"dependencies": {
 		"@chessalyzer/engine": "0.1.0"
+	},
+	"scripts": {
+		"start": "node src/main.ts"
 	}
 }
