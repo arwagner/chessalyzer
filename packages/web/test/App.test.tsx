@@ -40,7 +40,10 @@ function rowOf(move: string): HTMLElement {
 	return li;
 }
 
-async function runSearch(fetchFn: FetchFn, fen = MATE_IN_ONE): Promise<void> {
+async function submitSearch(
+	fetchFn: FetchFn,
+	fen = MATE_IN_ONE,
+): Promise<void> {
 	render(<App fetchFn={fetchFn} />);
 	fireEvent.change(screen.getByLabelText("FEN"), { target: { value: fen } });
 	fireEvent.click(screen.getByRole("button", { name: "Run" }));
@@ -91,7 +94,7 @@ describe("App", () => {
 
 	test("expanding a node and clicking its child shows the child's position on the board", async () => {
 		const result = searched(MATE_IN_ONE);
-		await runSearch(respond(200, { ...result, seed: 1 }));
+		await submitSearch(respond(200, { ...result, seed: 1 }));
 		expect(board().dataset.fen).toBe(MATE_IN_ONE);
 
 		const first = result.trace.root.children[0];
@@ -111,7 +114,7 @@ describe("App", () => {
 
 	test("highlights the chosen move's row and only that row among its siblings", async () => {
 		const result = searched(MATE_IN_ONE);
-		await runSearch(respond(200, { ...result, seed: 1 }));
+		await submitSearch(respond(200, { ...result, seed: 1 }));
 
 		expect(result.bestMove).toBe("Ra8#");
 		expect(rowOf("Ra8#").classList.contains("chosen")).toBe(true);
@@ -124,7 +127,7 @@ describe("App", () => {
 
 	test("shows the best move, score and seed of the result", async () => {
 		const result = searched(MATE_IN_ONE);
-		await runSearch(respond(200, { ...result, seed: 4321 }));
+		await submitSearch(respond(200, { ...result, seed: 4321 }));
 
 		const line = screen.getByText(/Best move/);
 		expect(line.textContent).toBe(
