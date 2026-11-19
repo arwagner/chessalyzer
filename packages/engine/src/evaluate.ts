@@ -11,9 +11,9 @@ export const PIECE_VALUES = {
 } as const;
 
 /**
- * The magnitude of the mate score. `evaluate` signs it from White's point of view and `evaluateAtPly`
- * adjusts it by the distance to mate; it is far beyond any material total so that every adjusted mate
- * still ranks above any material.
+ * The magnitude of a mate score: positive when White has mated, negative when Black has. Far beyond any
+ * material total, so that searches which subtract the distance to mate still rank every mate above any
+ * material.
  */
 export const MATE_SCORE = 100_000;
 

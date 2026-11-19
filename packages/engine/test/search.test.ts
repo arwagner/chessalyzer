@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { MATE_SCORE } from "../src/evaluate.ts";
-import { search } from "../src/search.ts";
+import { IMPLEMENTED_ALGORITHMS, search } from "../src/search.ts";
 import type { TraceNode } from "../src/trace.ts";
 import { parsed, START } from "./fixtures.ts";
 
@@ -169,6 +169,10 @@ describe("search", () => {
 		expect(() =>
 			search(START, { algorithm: "minimax", depth: 1.5, seed: 0 }),
 		).toThrow(RangeError);
+	});
+
+	test("lists exactly the algorithms it can run", () => {
+		expect(IMPLEMENTED_ALGORITHMS).toEqual(["random", "minimax"]);
 	});
 
 	test("rejects an algorithm that has no implementation yet", () => {

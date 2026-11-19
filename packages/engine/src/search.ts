@@ -14,6 +14,11 @@ const algorithms: { readonly [A in Algorithm]?: SearchAlgorithm } = {
 	minimax,
 };
 
+/** The algorithms `search` can run today, so callers can reject the rest before calling it. */
+export const IMPLEMENTED_ALGORITHMS: readonly Algorithm[] = Object.freeze(
+	Object.keys(algorithms) as Algorithm[],
+);
+
 /** Bad options are a caller bug (the server validates user input first), so they throw. */
 export function search(
 	position: Position,

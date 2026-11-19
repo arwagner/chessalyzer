@@ -1,6 +1,3 @@
-/** Lets other workspaces prove they resolve the engine by package name before they use its API. */
-export const engineName = "chessalyzer-engine";
-
 export {
 	evaluate,
 	evaluateAtPly,
@@ -19,7 +16,7 @@ export {
 	sideToMove,
 	status,
 } from "./position.ts";
-export { search } from "./search.ts";
+export { IMPLEMENTED_ALGORITHMS, search } from "./search.ts";
 export {
 	type Algorithm,
 	chosenChild,

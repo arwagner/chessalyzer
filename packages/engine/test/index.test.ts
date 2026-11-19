@@ -1,10 +1,6 @@
 import { expect, test } from "vitest";
 import * as engine from "../src/index.ts";
 
-test("the engine package exports its name", () => {
-	expect(engine.engineName).toBe("chessalyzer-engine");
-});
-
 test("the engine entry exposes position parsing and evaluation", () => {
 	const result = engine.parsePosition("8/8/4k3/8/8/4K3/8/Q7 w - - 0 1");
 	expect(result.ok).toBe(true);
