@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { MATE_SCORE } from "../src/evaluate.ts";
 import { type Position, parsePosition } from "../src/position.ts";
-import { search } from "../src/search.ts";
+import { IMPLEMENTED_ALGORITHMS, search } from "../src/search.ts";
 import type { TraceNode } from "../src/trace.ts";
 
 function parsed(fen: string): Position {
@@ -160,6 +160,10 @@ describe("search", () => {
 		expect(() => search(START, { algorithm: "minimax", depth: 1.5 })).toThrow(
 			RangeError,
 		);
+	});
+
+	test("lists exactly the algorithms it can run", () => {
+		expect(IMPLEMENTED_ALGORITHMS).toEqual(["minimax"]);
 	});
 
 	test("rejects an algorithm that has no implementation yet", () => {

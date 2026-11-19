@@ -87,6 +87,11 @@ describe("QUERY /api/search", () => {
 		],
 		["a missing FEN", { algorithm: "minimax", depth: 1 }, /fen/],
 		["an unknown algorithm", { ...valid, algorithm: "negamax" }, /algorithm/],
+		[
+			"an algorithm the engine names but does not implement yet",
+			{ ...valid, algorithm: "alphabeta" },
+			/algorithm/,
+		],
 		["a missing algorithm", { fen: START, depth: 1 }, /algorithm/],
 		["a fractional depth", { ...valid, depth: 1.5 }, /depth/],
 		["a string depth", { ...valid, depth: "2" }, /depth/],
@@ -145,19 +150,19 @@ test("a search that throws is a 500 with a JSON error, not a dropped connection"
 		deps: {
 			newSeed: () => 1,
 			search: () => {
-				throw new Error("no implementation for algorithm alphabeta");
+				throw new Error("search exploded");
 			},
 		},
 	});
 	try {
 		const response = await fetch(new URL("/api/search", failing.url), {
 			method: "QUERY",
-			body: JSON.stringify({ fen: START, algorithm: "alphabeta", depth: 1 }),
+			body: JSON.stringify({ fen: START, algorithm: "minimax", depth: 1 }),
 		});
 
 		expect(response.status).toBe(500);
 		const { error } = (await response.json()) as { error: string };
-		expect(error).toMatch(/alphabeta/);
+		expect(error).toMatch(/exploded/);
 	} finally {
 		await failing.close();
 	}

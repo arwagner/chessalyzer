@@ -19,7 +19,7 @@ export {
 	sideToMove,
 	status,
 } from "./position.ts";
-export { search } from "./search.ts";
+export { IMPLEMENTED_ALGORITHMS, search } from "./search.ts";
 export type {
 	Algorithm,
 	SearchOptions,

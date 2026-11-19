@@ -1,14 +1,9 @@
 import {
 	type Algorithm,
+	IMPLEMENTED_ALGORITHMS,
 	type Position,
 	parsePosition,
 } from "@chessalyzer/engine";
-
-/** Every algorithm the engine names, so the server can reject a typo before it reaches `search`. */
-export const ALGORITHMS = [
-	"minimax",
-	"alphabeta",
-] as const satisfies readonly Algorithm[];
 
 // Each node at depth d has ~30 children, so the trace grows ~30^d; beyond 5 a response would be too big to
 // send or render.
@@ -44,7 +39,9 @@ export function parseSearchRequest(text: string): RequestResult {
 	if (!parsed.ok) return fail(parsed.error);
 
 	if (!isAlgorithm(algorithm)) {
-		return fail(`algorithm must be one of ${ALGORITHMS.join(", ")}`);
+		return fail(
+			`algorithm must be one of ${IMPLEMENTED_ALGORITHMS.join(", ")}`,
+		);
 	}
 	if (!Number.isInteger(depth)) return fail("depth must be an integer");
 	const plies = depth as number;
@@ -67,7 +64,7 @@ export function parseSearchRequest(text: string): RequestResult {
 }
 
 function isAlgorithm(value: unknown): value is Algorithm {
-	return (ALGORITHMS as readonly unknown[]).includes(value);
+	return (IMPLEMENTED_ALGORITHMS as readonly unknown[]).includes(value);
 }
 
 function fail(error: string): RequestResult {

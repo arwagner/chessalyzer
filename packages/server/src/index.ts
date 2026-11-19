@@ -1,6 +1,5 @@
 export { DEFAULT_PORT, portFrom } from "./port.ts";
 export {
-	ALGORITHMS,
 	MAX_DEPTH,
 	parseSearchRequest,
 	type RequestResult,
