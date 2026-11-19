@@ -29,6 +29,11 @@ npm run typecheck
 npm run lint
 ```
 
+`npm run dev` starts the API (`packages/server`, `node --watch` on `127.0.0.1:3001`) and the Vite dev server
+(`packages/web`, <http://localhost:5173>) together; open the Vite URL. Vite proxies `/api` to port 3001, so the
+app calls the API on its own origin. Ctrl-C stops both, and if either one exits the other is stopped too. The
+API port is fixed in the server's `dev` script and in `packages/web/vite.config.ts`; a test keeps them equal.
+
 ## Server
 
 `npm start` runs the API on `127.0.0.1:3001` (override with `PORT`/`HOST`, or `--port <n>`).

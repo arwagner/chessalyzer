@@ -11,6 +11,7 @@
 		"@chessalyzer/engine": "0.1.0"
 	},
 	"scripts": {
-		"start": "node src/main.ts"
+		"start": "node src/main.ts",
+		"dev": "node --watch src/main.ts --port 3001"
 	}
 }
