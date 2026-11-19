@@ -34,7 +34,7 @@ npm run lint
 `npm start` runs the API on `127.0.0.1:3001` (override with `PORT`/`HOST`, or `--port <n>`).
 
 `QUERY /api/search` takes a JSON body `{ fen, algorithm, depth, seed? }` (`algorithm` one the engine
-implements, today only `minimax`; `depth` an integer from 1 to 5) and returns the search result plus the
+implements, today `random` and `minimax`; `depth` an integer from 1 to 5) and returns the search result plus the
 `seed` used; send that seed back to replay the same search. A bad body is a 400 with `{ "error": "..." }`,
 other methods are a 405.
 QUERY is the HTTP method for a safe, idempotent request with a body: `fetch(url, { method: "QUERY", body })`.
