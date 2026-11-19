@@ -75,8 +75,9 @@ export async function runSearch(
 // A shallow check: the server is ours, so this guards against a proxy's or dev server's page, not a
 // malformed trace.
 function isSearchResult(body: unknown): body is SearchResult {
-	if (typeof body !== "object" || body === null) return false;
-	const { score, trace } = body as Record<string, unknown>;
+	const record = asRecord(body);
+	if (record === undefined) return false;
+	const { score, trace } = record;
 	return (
 		typeof score === "number" &&
 		typeof trace === "object" &&
@@ -86,9 +87,14 @@ function isSearchResult(body: unknown): body is SearchResult {
 }
 
 function errorMessage(body: unknown): string | undefined {
-	if (typeof body !== "object" || body === null) return undefined;
-	const { error } = body as Record<string, unknown>;
+	const error = asRecord(body)?.error;
 	return typeof error === "string" ? error : undefined;
+}
+
+function asRecord(body: unknown): Record<string, unknown> | undefined {
+	return typeof body === "object" && body !== null
+		? (body as Record<string, unknown>)
+		: undefined;
 }
 
 function fail(kind: SearchError["kind"], text: string): SearchOutcome {
