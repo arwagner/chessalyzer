@@ -1,0 +1,13 @@
+{
+	"name": "@chessalyzer/engine",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Pure TypeScript chess board, evaluation and search algorithms",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"dependencies": {
+		"chess.js": "1.4.0"
+	}
+}
