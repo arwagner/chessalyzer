@@ -23,10 +23,10 @@ export function minimax(position: Position, depth: number): SearchResult {
 		ply: number,
 	): ScoredNode {
 		const id = nextId++;
-		const leaf = { id, fen, move, depth: remaining, entry: null, exit: null };
+		const common = { id, fen, move, depth: remaining, entry: null, exit: null };
 		if (remaining === 0 || status(fen) !== "ongoing") {
 			return {
-				...leaf,
+				...common,
 				score: evaluateAtPly(fen, ply),
 				pruned: false,
 				children: [],
@@ -38,7 +38,7 @@ export function minimax(position: Position, depth: number): SearchResult {
 		const scores = children.map((c) => c.score);
 		const score =
 			sideToMove(fen) === "w" ? Math.max(...scores) : Math.min(...scores);
-		return { ...leaf, score, pruned: false, children };
+		return { ...common, score, pruned: false, children };
 	}
 
 	const root = visit(position, null, depth, 0);
