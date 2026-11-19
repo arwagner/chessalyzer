@@ -8,6 +8,7 @@ import {
 import { describe, expect, test } from "vitest";
 import {
 	collapseAll,
+	type Expanded,
 	expandAll,
 	initialExpanded,
 	selectNode,
@@ -58,7 +59,7 @@ const trace: Trace = {
 	]),
 };
 
-const ids = (expanded: ReadonlySet<number>) =>
+const ids = (expanded: Expanded) =>
 	visibleRows(trace, expanded).map((r) => r.id);
 
 describe("visibleRows", () => {
