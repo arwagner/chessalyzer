@@ -43,10 +43,11 @@ export function parseSearchRequest(text: string): RequestResult {
 			`algorithm must be one of ${IMPLEMENTED_ALGORITHMS.join(", ")}`,
 		);
 	}
-	if (!Number.isInteger(depth)) return fail("depth must be an integer");
-	const plies = depth as number;
-	if (plies < 1 || plies > MAX_DEPTH) {
-		return fail(`depth must be from 1 to ${MAX_DEPTH}, got ${plies}`);
+	if (typeof depth !== "number" || !Number.isInteger(depth)) {
+		return fail("depth must be an integer");
+	}
+	if (depth < 1 || depth > MAX_DEPTH) {
+		return fail(`depth must be from 1 to ${MAX_DEPTH}, got ${depth}`);
 	}
 	if (seed !== undefined && !Number.isSafeInteger(seed)) {
 		return fail("seed must be an integer");
@@ -57,7 +58,7 @@ export function parseSearchRequest(text: string): RequestResult {
 		request: {
 			position: parsed.position,
 			algorithm,
-			depth: plies,
+			depth,
 			seed: seed as number | undefined,
 		},
 	};

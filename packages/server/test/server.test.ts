@@ -102,6 +102,7 @@ describe("QUERY /api/search", () => {
 		["a string seed", { ...valid, seed: "1" }, /seed/],
 		["malformed JSON", "{ not json", /JSON/],
 		["a JSON body that is not an object", "[1, 2]", /object/],
+		["a JSON body that is null", "null", /object/],
 	];
 
 	for (const [name, body, message] of badRequests) {
