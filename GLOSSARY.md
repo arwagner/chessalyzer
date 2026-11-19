@@ -16,6 +16,8 @@ comment, it means exactly this.
 - **search**: running an algorithm on a position: `search(position, options) => SearchResult`, where
   `options` names at least the algorithm and depth. Pure and deterministic: the same input gives the same
   search result, trace included.
+- **seed**: an integer a search request carries so its response can be replayed exactly. The server picks one
+  when the request has none and returns it. Today's algorithms are deterministic and ignore it.
 - **search result**: what a search returns: `bestMove` (the move chosen at the root), `score` (the root's
   score, from White's point of view) and `trace`.
 - **trace**: the whole tree one search visited, as plain data, so the UI can replay the search step by step.
