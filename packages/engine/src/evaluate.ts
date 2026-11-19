@@ -47,3 +47,14 @@ function material(position: Position): number {
 	}
 	return score;
 }
+
+/**
+ * `evaluate` for a node `ply` half-moves below the search root. Mate scores are pulled toward zero by the
+ * distance to mate, so a search prefers the faster of two mates (and, when being mated, the slower one).
+ */
+export function evaluateAtPly(position: Position, ply: number): number {
+	const score = evaluate(position);
+	if (score === MATE_SCORE) return score - ply;
+	if (score === -MATE_SCORE) return score + ply;
+	return score;
+}

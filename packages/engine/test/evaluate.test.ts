@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
 	evaluate,
+	evaluateAtPly,
 	MATE_SCORE,
 	PIECE_VALUES,
 	SCORE_BOUND,
@@ -88,5 +89,20 @@ describe("score constants", () => {
 			alpha: -SCORE_BOUND,
 			beta: SCORE_BOUND,
 		});
+	});
+});
+
+describe("evaluateAtPly", () => {
+	const blackIsMated = parsed("R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1");
+	const whiteIsMated = parsed("6k1/8/8/8/8/8/5PPP/r5K1 w - - 1 1");
+
+	test("pulls a mate score toward zero by the distance to mate", () => {
+		expect(evaluateAtPly(blackIsMated, 3)).toBe(MATE_SCORE - 3);
+		expect(evaluateAtPly(whiteIsMated, 3)).toBe(-(MATE_SCORE - 3));
+	});
+
+	test("leaves a material score alone", () => {
+		const queenUp = parsed("8/8/4k3/8/8/4K3/8/Q7 w - - 0 1");
+		expect(evaluateAtPly(queenUp, 3)).toBe(PIECE_VALUES.q);
 	});
 });

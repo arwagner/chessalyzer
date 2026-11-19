@@ -22,7 +22,7 @@ comment, it means exactly this.
 - **trace node**: one position in the trace, either visited or pruned. It records the position's FEN, the move
   that led to it, its depth, its window, its score and whether it was pruned.
 - **window**: the alpha/beta bounds at a node, recorded both on entry and on exit. Minimax has no window to
-  narrow; its nodes carry the unbounded window.
+  narrow, so its trace nodes record `null` for the window on entry and on exit.
 - **pruned**: a move alpha-beta skipped after a cutoff. It is present in the trace as a trace node so the UI
   can show it, but it was never searched: it has no score and no children.
 - **visited node count**: the number of trace nodes that are not pruned. Used to compare how much work
