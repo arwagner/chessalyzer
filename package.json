@@ -7,10 +7,16 @@
 	"engines": {
 		"node": ">=24"
 	},
+	"workspaces": [
+		"packages/engine",
+		"packages/server",
+		"packages/web"
+	],
 	"scripts": {
-		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"typecheck": "tsc -p tsconfig.json && tsc -p packages/engine && tsc -p packages/server && tsc -p packages/web",
 		"lint": "biome check .",
-		"test": "vitest run"
+		"test": "vitest run",
+		"start": "node packages/server/src/main.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.6.8",

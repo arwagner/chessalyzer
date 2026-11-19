@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		// No DOM and no Node: the engine must run unchanged in the browser and on the server.
+		"lib": ["esnext"],
+		"types": []
+	},
+	"include": ["src", "test"]
+}

@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**/*.ts", "**/*.json"]
+		"includes": ["**/*.ts", "**/*.tsx", "**/*.json"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -31,5 +31,54 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["packages/engine/**", "!packages/engine/src/position.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {
+									"chess.js": "Only packages/engine/src/position.ts may import chess.js; use its exports instead."
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"includes": ["packages/web/src/traceTree.ts"],
+			"linter": {
+				"rules": {
+					"style": {
+						"noRestrictedImports": {
+							"level": "error",
+							"options": {
+								"paths": {
+									"react": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components.",
+									"react-dom": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components.",
+									"react-dom/client": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components."
+								}
+							}
+						},
+						"noRestrictedGlobals": {
+							"level": "error",
+							"options": {
+								"deniedGlobals": {
+									"window": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components.",
+									"document": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components.",
+									"navigator": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components.",
+									"localStorage": "The trace tree model is pure so it can be tested without a browser; keep React and the DOM in the components."
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	]
 }
