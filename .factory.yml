@@ -1,0 +1,13 @@
+# Opts this repo in to aint-farm (arwagner/aint-farm). Format: docs/factory-yml.md in that repo.
+schemaVersion: 1
+checks:
+  - npm ci
+  - npm run typecheck
+  - npm run lint
+  - npm test
+agent: claude
+tasks:
+  explore: {}
+  implement: {}
+  implement-spec: {}
+  review: {}

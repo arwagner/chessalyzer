@@ -1,0 +1,21 @@
+{
+	"name": "chessalyzer",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"description": "Edit and study chess search algorithms in a UI",
+	"engines": {
+		"node": ">=24"
+	},
+	"scripts": {
+		"typecheck": "tsc --noEmit -p tsconfig.json",
+		"lint": "biome check .",
+		"test": "vitest run"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.6.8",
+		"@types/node": "26.6.6",
+		"typescript": "7.0.2",
+		"vitest": "5.1.0"
+	}
+}
