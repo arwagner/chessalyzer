@@ -1,23 +1,14 @@
 import { describe, expect, test } from "vitest";
 import { MATE_SCORE } from "../src/evaluate.ts";
-import { type Position, parsePosition } from "../src/position.ts";
 import { search } from "../src/search.ts";
 import type { TraceNode } from "../src/trace.ts";
-
-function parsed(fen: string): Position {
-	const result = parsePosition(fen);
-	if (!result.ok) throw new Error(`test FEN rejected: ${result.error}`);
-	return result.position;
-}
+import { parsed, START } from "./fixtures.ts";
 
 function* walk(node: TraceNode): Generator<TraceNode> {
 	yield node;
 	for (const child of node.children) yield* walk(child);
 }
 
-const START = parsed(
-	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-);
 // Back-rank mates: Ra8# for White, Ra1# for Black.
 const WHITE_MATES_IN_ONE = parsed("6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1");
 const BLACK_MATES_IN_ONE = parsed("r5k1/8/8/8/8/8/5PPP/6K1 b - - 0 1");

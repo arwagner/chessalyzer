@@ -1,25 +1,10 @@
 import { describe, expect, test } from "vitest";
 import { evaluate } from "../src/evaluate.ts";
-import { type Position, parsePosition, play } from "../src/position.ts";
+import { play } from "../src/position.ts";
 import { mulberry32 } from "../src/random.ts";
 import { search } from "../src/search.ts";
 import type { SearchOptions } from "../src/trace.ts";
-
-function parsed(fen: string): Position {
-	const result = parsePosition(fen);
-	if (!result.ok) throw new Error(`test FEN rejected: ${result.error}`);
-	return result.position;
-}
-
-const START = parsed(
-	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-);
-// Black is mated by Qh5xf7 (scholar's mate).
-const CHECKMATED = parsed(
-	"r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4",
-);
-// Black to move, not in check, with no legal move.
-const STALEMATED = parsed("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
 function randomly(seed: number): SearchOptions {
 	return { algorithm: "random", depth: 1, seed };
@@ -70,14 +55,14 @@ describe("search with random", () => {
 	});
 
 	test("a checkmated position has no best move", () => {
-		const result = search(CHECKMATED, randomly(1));
+		const result = search(SCHOLARS_MATE, randomly(1));
 		expect(result.bestMove).toBeNull();
 		expect(result.trace.root.children).toEqual([]);
-		expect(result.score).toBe(evaluate(CHECKMATED));
+		expect(result.score).toBe(evaluate(SCHOLARS_MATE));
 	});
 
 	test("a stalemated position has no best move", () => {
-		const result = search(STALEMATED, randomly(1));
+		const result = search(STALEMATE, randomly(1));
 		expect(result.bestMove).toBeNull();
 		expect(result.trace.root.children).toEqual([]);
 		expect(result.score).toBe(0);
