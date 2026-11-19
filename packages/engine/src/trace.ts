@@ -51,3 +51,13 @@ export type SearchAlgorithm = (
 	position: Position,
 	options: SearchOptions,
 ) => SearchResult;
+
+/**
+ * The child a node's score came from: the first in move order, not pruned, whose score equals the node's.
+ * One rule for the engine's best move and for anything reading a trace afterwards, since the trace records
+ * scores and not the pick itself.
+ */
+export function chosenChild(node: TraceNode): TraceNode | undefined {
+	if (node.score === null) return undefined;
+	return node.children.find((c) => !c.pruned && c.score === node.score);
+}

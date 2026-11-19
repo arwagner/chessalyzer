@@ -1,4 +1,9 @@
-import type { Position, Trace, TraceNode } from "@chessalyzer/engine";
+import {
+	chosenChild,
+	type Position,
+	type Trace,
+	type TraceNode,
+} from "@chessalyzer/engine";
 
 /**
  * The ids of the trace nodes whose children are shown. Kept apart from the trace so a new search's trace
@@ -72,15 +77,6 @@ export function visibleRows(trace: Trace, expanded: Expanded): TreeRow[] {
 /** The position to show on the board. An unknown id (say, from a previous search) falls back to the root. */
 export function selectNode(trace: Trace, id: number): Position {
 	return find(trace.root, id)?.fen ?? trace.root.fen;
-}
-
-/**
- * The trace records scores, not which child each node picked, so the pick is recovered as the first child
- * in move order whose score equals the parent's: the same tie-break minimax uses for its best move.
- */
-function chosenChild(n: TraceNode): TraceNode | undefined {
-	if (n.score === null) return undefined;
-	return n.children.find((c) => !c.pruned && c.score === n.score);
 }
 
 function find(n: TraceNode, id: number): TraceNode | undefined {
