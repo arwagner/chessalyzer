@@ -48,7 +48,7 @@ export async function runSearch(
 			body: JSON.stringify(request),
 		});
 	} catch (error) {
-		return fail("network", message(error));
+		return fail("network", thrownMessage(error));
 	}
 
 	let body: unknown;
@@ -101,6 +101,6 @@ function fail(kind: SearchError["kind"], text: string): SearchOutcome {
 	return { ok: false, error: { kind, message: text } };
 }
 
-function message(error: unknown): string {
+function thrownMessage(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
 }
