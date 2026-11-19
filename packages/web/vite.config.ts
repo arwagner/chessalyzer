@@ -5,7 +5,7 @@ import { defineConfig } from "vite";
 export const DEV_API_PORT = 3001;
 
 // Pinned and strict so the README's URL is the one you get, rather than Vite quietly picking the next port.
-export const DEV_WEB_PORT = 5173;
+const DEV_WEB_PORT = 5173;
 
 export default defineConfig({
 	plugins: [react()],
