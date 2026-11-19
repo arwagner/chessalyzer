@@ -33,6 +33,7 @@ npm run lint
 (`packages/web`, <http://localhost:5173>) together; open the Vite URL. Vite proxies `/api` to port 3001, so the
 app calls the API on its own origin. Ctrl-C stops both, and if either one exits the other is stopped too. The
 API port is fixed in the server's `dev` script and in `packages/web/vite.config.ts`; a test keeps them equal.
+Leave `HOST` unset for `npm run dev`: the server would bind it, but the proxy always targets `127.0.0.1`.
 
 ## Server
 
