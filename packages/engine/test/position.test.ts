@@ -1,27 +1,15 @@
 import { describe, expect, test } from "vitest";
 import {
 	legalMoves,
-	type Position,
 	parsePosition,
 	play,
 	sideToMove,
 	status,
 } from "../src/position.ts";
+import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
-const START = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-// Black is mated by Qh5xf7 (scholar's mate).
-const SCHOLARS_MATE =
-	"r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4";
-// Black to move, not in check, with no legal move.
-const STALEMATE = "7k/5Q2/6K1/8/8/8/8/8 b - - 0 1";
 // King against king: a draw that is neither mate nor stalemate.
 const BARE_KINGS = "8/8/4k3/8/8/4K3/8/8 w - - 0 1";
-
-function parsed(fen: string): Position {
-	const result = parsePosition(fen);
-	if (!result.ok) throw new Error(`test FEN rejected: ${result.error}`);
-	return result.position;
-}
 
 describe("parsePosition", () => {
 	test("accepts a valid FEN", () => {

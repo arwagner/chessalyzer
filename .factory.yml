@@ -10,4 +10,5 @@ tasks:
   explore: {}
   implement: {}
   implement-spec: {}
+  merge: {}
   review: {}

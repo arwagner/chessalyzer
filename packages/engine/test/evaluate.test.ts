@@ -6,21 +6,11 @@ import {
 	PIECE_VALUES,
 	SCORE_BOUND,
 } from "../src/evaluate.ts";
-import { type Position, parsePosition } from "../src/position.ts";
-
-function parsed(fen: string): Position {
-	const result = parsePosition(fen);
-	if (!result.ok) throw new Error(`test FEN rejected: ${result.error}`);
-	return result.position;
-}
+import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
 describe("evaluate", () => {
 	test("the start position is level", () => {
-		expect(
-			evaluate(
-				parsed("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"),
-			),
-		).toBe(0);
+		expect(evaluate(parsed(START))).toBe(0);
 	});
 
 	test("White a queen up is +900", () => {
@@ -42,13 +32,7 @@ describe("evaluate", () => {
 	});
 
 	test("Black checkmated scores the mate score for White", () => {
-		expect(
-			evaluate(
-				parsed(
-					"r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4",
-				),
-			),
-		).toBe(MATE_SCORE);
+		expect(evaluate(parsed(SCHOLARS_MATE))).toBe(MATE_SCORE);
 	});
 
 	test("White checkmated scores the mate score against White", () => {
@@ -61,7 +45,7 @@ describe("evaluate", () => {
 	});
 
 	test("stalemate is 0 even with a queen up", () => {
-		expect(evaluate(parsed("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1"))).toBe(0);
+		expect(evaluate(parsed(STALEMATE))).toBe(0);
 	});
 
 	test("other draws are 0", () => {
