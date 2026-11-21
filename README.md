@@ -29,6 +29,12 @@ npm run typecheck
 npm run lint
 ```
 
+`npm run dev` starts the API (`packages/server`, `node --watch` on `127.0.0.1:3001`) and the Vite dev server
+(`packages/web`, <http://localhost:5173>) together; open the Vite URL. Vite proxies `/api` to port 3001, so the
+app calls the API on its own origin. Ctrl-C stops both, and if either one exits the other is stopped too. The
+API port is fixed in the server's `dev` script and in `packages/web/vite.config.ts`; a test keeps them equal.
+Leave `HOST` unset for `npm run dev`: the server would bind it, but the proxy always targets `127.0.0.1`.
+
 ## Server
 
 `npm start` runs the API on `127.0.0.1:3001` (override with `PORT`/`HOST`, or `--port <n>`).
@@ -41,5 +47,6 @@ QUERY is the HTTP method for a safe, idempotent request with a body: `fetch(url,
 
 ## Web
 
-With the server running, `npm run dev -w @chessalyzer/web` serves the UI and forwards `/api` to
-`127.0.0.1:3001`.
+`npm run dev` (see above) is the easy way to run the UI. To run it on its own, start the server (`npm start`)
+and then `npm run dev -w @chessalyzer/web`, which serves the UI on <http://localhost:5173> and forwards `/api`
+to `127.0.0.1:3001`.
