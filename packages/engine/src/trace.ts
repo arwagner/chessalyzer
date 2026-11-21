@@ -1,11 +1,13 @@
 import type { Position } from "./position.ts";
 
-export type Algorithm = "minimax" | "alphabeta";
+export type Algorithm = "random" | "minimax" | "alphabeta";
 
 export type SearchOptions = {
 	readonly algorithm: Algorithm;
 	/** Plies to search below the root; 0 scores the root by evaluation alone. */
 	readonly depth: number;
+	/** Seeds the PRNG of algorithms that choose at random, so the same seed replays the same search. */
+	readonly seed: number;
 };
 
 /** Alpha/beta bounds. Finite (see `SCORE_BOUND`) so a trace survives JSON. */
@@ -47,5 +49,15 @@ export type SearchResult = {
 /** One algorithm. `search` validates the options before calling it. */
 export type SearchAlgorithm = (
 	position: Position,
-	depth: number,
+	options: SearchOptions,
 ) => SearchResult;
+
+/**
+ * The child a node's score came from: the first in move order, not pruned, whose score equals the node's.
+ * One rule for the engine's best move and for anything reading a trace afterwards, since the trace records
+ * scores and not the pick itself.
+ */
+export function chosenChild(node: TraceNode): TraceNode | undefined {
+	if (node.score === null) return undefined;
+	return node.children.find((c) => !c.pruned && c.score === node.score);
+}

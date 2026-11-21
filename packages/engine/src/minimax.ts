@@ -6,13 +6,21 @@ import {
 	sideToMove,
 	status,
 } from "./position.ts";
-import type { SearchResult, TraceNode } from "./trace.ts";
+import {
+	chosenChild,
+	type SearchOptions,
+	type SearchResult,
+	type TraceNode,
+} from "./trace.ts";
 
 // Minimax scores every node it touches, so its nodes never carry the null score of a pruned node.
 type ScoredNode = TraceNode & { readonly score: number };
 
 /** Depth-limited minimax: White maximises, Black minimises, and every node visited is in the trace. */
-export function minimax(position: Position, depth: number): SearchResult {
+export function minimax(
+	position: Position,
+	{ depth }: SearchOptions,
+): SearchResult {
 	// The counter lives in this call, not the module, so every search numbers its nodes from 0.
 	let nextId = 0;
 
@@ -42,8 +50,7 @@ export function minimax(position: Position, depth: number): SearchResult {
 	}
 
 	const root = visit(position, null, depth, 0);
-	// The first child in move order with the root's score, so ties break the same way every run.
-	const best = root.children.find((c) => c.score === root.score);
+	const best = chosenChild(root);
 	return {
 		bestMove: best?.move ?? null,
 		score: root.score,

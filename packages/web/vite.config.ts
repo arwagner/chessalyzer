@@ -12,7 +12,7 @@ export default defineConfig({
 	server: {
 		port: DEV_WEB_PORT,
 		strictPort: true,
-		// Same origin for the browser, so the app calls `/api/...` with no CORS and no hard-coded host.
+		// Same origin for the browser, so the search client calls the relative `/api/search` with no CORS and no hard-coded host.
 		proxy: { "/api": `http://127.0.0.1:${DEV_API_PORT}` },
 	},
 });

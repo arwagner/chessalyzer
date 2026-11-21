@@ -78,9 +78,12 @@ async function handle(
 	}
 	const { position, algorithm, depth } = parsed.request;
 	const seed = parsed.request.seed ?? deps.newSeed();
-	// Today's algorithms are deterministic and take no seed; it is echoed so any response can be replayed
-	// exactly once an algorithm does use one.
-	const result = (deps.search ?? engineSearch)(position, { algorithm, depth });
+	// Echoed so any response, including one whose seed the server picked, can be replayed exactly.
+	const result = (deps.search ?? engineSearch)(position, {
+		algorithm,
+		depth,
+		seed,
+	});
 	sendJson(res, 200, { ...result, seed });
 }
 

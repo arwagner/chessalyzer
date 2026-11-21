@@ -40,7 +40,13 @@ Leave `HOST` unset for `npm run dev`: the server would bind it, but the proxy al
 `npm start` runs the API on `127.0.0.1:3001` (override with `PORT`/`HOST`, or `--port <n>`).
 
 `QUERY /api/search` takes a JSON body `{ fen, algorithm, depth, seed? }` (`algorithm` one the engine
-implements, today only `minimax`; `depth` an integer from 1 to 5) and returns the search result plus the
+implements, today `random` and `minimax`; `depth` an integer from 1 to 5) and returns the search result plus the
 `seed` used; send that seed back to replay the same search. A bad body is a 400 with `{ "error": "..." }`,
 other methods are a 405.
 QUERY is the HTTP method for a safe, idempotent request with a body: `fetch(url, { method: "QUERY", body })`.
+
+## Web
+
+`npm run dev` (see above) is the easy way to run the UI. To run it on its own, start the server (`npm start`)
+and then `npm run dev -w @chessalyzer/web`, which serves the UI on <http://localhost:5173> and forwards `/api`
+to `127.0.0.1:3001`.

@@ -10,7 +10,7 @@ import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
 describe("evaluate", () => {
 	test("the start position is level", () => {
-		expect(evaluate(parsed(START))).toBe(0);
+		expect(evaluate(START)).toBe(0);
 	});
 
 	test("White a queen up is +900", () => {
@@ -32,7 +32,7 @@ describe("evaluate", () => {
 	});
 
 	test("Black checkmated scores the mate score for White", () => {
-		expect(evaluate(parsed(SCHOLARS_MATE))).toBe(MATE_SCORE);
+		expect(evaluate(SCHOLARS_MATE)).toBe(MATE_SCORE);
 	});
 
 	test("White checkmated scores the mate score against White", () => {
@@ -45,7 +45,7 @@ describe("evaluate", () => {
 	});
 
 	test("stalemate is 0 even with a queen up", () => {
-		expect(evaluate(parsed(STALEMATE))).toBe(0);
+		expect(evaluate(STALEMATE)).toBe(0);
 	});
 
 	test("other draws are 0", () => {

@@ -41,7 +41,11 @@ describe("QUERY /api/search", () => {
 		const body = (await response.json()) as SearchResponse;
 		const parsed = parsePosition(MATE_IN_ONE);
 		if (!parsed.ok) throw new Error(parsed.error);
-		const direct = search(parsed.position, { algorithm: "minimax", depth: 2 });
+		const direct = search(parsed.position, {
+			algorithm: "minimax",
+			depth: 2,
+			seed: 7,
+		});
 		expect(body.bestMove).toBe(direct.bestMove);
 		expect(body.bestMove).toBe("Ra8#");
 		expect(body.score).toBe(direct.score);

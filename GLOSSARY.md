@@ -10,14 +10,14 @@ comment, it means exactly this.
 - **mate score**: the score given to a checkmated position. It is larger in magnitude than any material
   evaluation, positive when White has mated and negative when Black has, and is adjusted by the distance to
   mate so a faster mate scores better than a slower one.
-- **algorithm**: a named search implementation, selected by name: `minimax` or `alphabeta`.
+- **algorithm**: a named search implementation, selected by name: `random`, `minimax` or `alphabeta`.
 - **depth**: the number of plies (half-moves) left to search from a node. A node at depth 0 is scored by the
   evaluation instead of being expanded.
 - **search**: running an algorithm on a position: `search(position, options) => SearchResult`, where
   `options` names at least the algorithm and depth. Pure and deterministic: the same input gives the same
   search result, trace included.
 - **seed**: an integer a search request carries so its response can be replayed exactly. The server picks one
-  when the request has none and returns it. Today's algorithms are deterministic and ignore it.
+  when the request has none and returns it. `random` uses it to choose; the other algorithms ignore it.
 - **search result**: what a search returns: `bestMove` (the move chosen at the root), `score` (the root's
   score, from White's point of view) and `trace`.
 - **trace**: the whole tree one search visited, as plain data, so the UI can replay the search step by step.
