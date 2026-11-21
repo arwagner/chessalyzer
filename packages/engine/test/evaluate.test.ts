@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
 	evaluate,
+	evaluateAtPly,
 	MATE_SCORE,
 	PIECE_VALUES,
 	SCORE_BOUND,
@@ -9,7 +10,7 @@ import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
 describe("evaluate", () => {
 	test("the start position is level", () => {
-		expect(evaluate(parsed(START))).toBe(0);
+		expect(evaluate(START)).toBe(0);
 	});
 
 	test("White a queen up is +900", () => {
@@ -31,7 +32,7 @@ describe("evaluate", () => {
 	});
 
 	test("Black checkmated scores the mate score for White", () => {
-		expect(evaluate(parsed(SCHOLARS_MATE))).toBe(MATE_SCORE);
+		expect(evaluate(SCHOLARS_MATE)).toBe(MATE_SCORE);
 	});
 
 	test("White checkmated scores the mate score against White", () => {
@@ -44,7 +45,7 @@ describe("evaluate", () => {
 	});
 
 	test("stalemate is 0 even with a queen up", () => {
-		expect(evaluate(parsed(STALEMATE))).toBe(0);
+		expect(evaluate(STALEMATE)).toBe(0);
 	});
 
 	test("other draws are 0", () => {
@@ -72,5 +73,20 @@ describe("score constants", () => {
 			alpha: -SCORE_BOUND,
 			beta: SCORE_BOUND,
 		});
+	});
+});
+
+describe("evaluateAtPly", () => {
+	const blackIsMated = parsed("R5k1/5ppp/8/8/8/8/8/6K1 b - - 1 1");
+	const whiteIsMated = parsed("6k1/8/8/8/8/8/5PPP/r5K1 w - - 1 1");
+
+	test("pulls a mate score toward zero by the distance to mate", () => {
+		expect(evaluateAtPly(blackIsMated, 3)).toBe(MATE_SCORE - 3);
+		expect(evaluateAtPly(whiteIsMated, 3)).toBe(-(MATE_SCORE - 3));
+	});
+
+	test("leaves a material score alone", () => {
+		const queenUp = parsed("8/8/4k3/8/8/4K3/8/Q7 w - - 0 1");
+		expect(evaluateAtPly(queenUp, 3)).toBe(PIECE_VALUES.q);
 	});
 });

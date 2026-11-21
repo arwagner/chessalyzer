@@ -6,6 +6,7 @@ import {
 	sideToMove,
 	status,
 } from "../src/position.ts";
+
 import { parsed, SCHOLARS_MATE, STALEMATE, START } from "./fixtures.ts";
 
 // King against king: a draw that is neither mate nor stalemate.
