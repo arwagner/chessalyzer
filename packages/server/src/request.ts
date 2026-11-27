@@ -5,8 +5,8 @@ import {
 	parsePosition,
 } from "@chessalyzer/core";
 
-// The analysis grows with how many nodes the engine visits in its budget. Board code visits a few thousand
-// nodes a second, so a longer budget would make a response too big to send or render.
+// The analysis grows with how many nodes the engine visits in its budget. Minimax on chess.js visits a few
+// thousand nodes a second, so a longer budget would make a response too big to send or render.
 export const MAX_BUDGET_MS = 5000;
 
 export type SearchRequest = {
