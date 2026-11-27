@@ -1,7 +1,7 @@
 import type { Algorithm, SearchResult } from "@chessalyzer/core";
 
 export type SearchRequest = {
-	/** Raw user input: the server validates it and answers a bad FEN with a 400. */
+	/** Raw editor input: the server validates it and answers a bad FEN with a 400. */
 	readonly fen: string;
 	readonly algorithm: Algorithm;
 	/** The search budget in milliseconds; the server rejects one beyond its maximum. */
@@ -22,7 +22,7 @@ export type FetchFn = (
 
 export type SearchError = {
 	/**
-	 * `rejected`: the server refused the request (400), so the message is about the user's input.
+	 * `rejected`: the server refused the request (400), so the message is about the editor's input.
 	 * `server`: any other failure the server reported. `network`: the server was never reached.
 	 */
 	readonly kind: "rejected" | "server" | "network";
@@ -33,7 +33,7 @@ export type SearchOutcome =
 	| {
 			readonly ok: true;
 			readonly result: SearchResult;
-			/** The seed the server ran with, picked by it when the request had none, so the user can replay the search. */
+			/** The seed the server ran with, picked by it when the request had none, so the editor can replay the search. */
 			readonly seed: number;
 	  }
 	| { readonly ok: false; readonly error: SearchError };

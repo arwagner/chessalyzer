@@ -19,7 +19,7 @@ export type Side = "w" | "b";
 /** `draw` is any draw other than stalemate: fifty-move rule or insufficient material. */
 export type Status = "ongoing" | "checkmate" | "stalemate" | "draw";
 
-/** Bad input is an expected outcome here (the server passes user FENs straight in), so it never throws. */
+/** Bad input is an expected outcome here (the server passes the editor's FENs straight in), so it never throws. */
 export function parsePosition(fen: string): ParseResult {
 	const check = validateFen(fen);
 	if (!check.ok) {

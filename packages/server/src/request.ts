@@ -22,7 +22,7 @@ export type RequestResult =
 	| { readonly ok: true; readonly request: SearchRequest }
 	| { readonly ok: false; readonly error: string };
 
-/** Checks a request body's text. User input, so every failure is a value, never a throw. */
+/** Checks a request body's text. Editor input, so every failure is a value, never a throw. */
 export function parseSearchRequest(text: string): RequestResult {
 	let body: unknown;
 	try {

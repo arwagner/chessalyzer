@@ -61,7 +61,7 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 		}
 	}
 
-	// Before any search the board previews what the user typed.
+	// Before any search the board previews what the editor typed.
 	const boardFen = shown
 		? selectNode(shown.result.analysis, shown.selected)
 		: fen;

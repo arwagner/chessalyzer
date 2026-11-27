@@ -23,7 +23,7 @@ export const IMPLEMENTED_ALGORITHMS: readonly Algorithm[] = Object.freeze(
 /**
  * The clock comes in through `deps` so that the search stays deterministic given its inputs: the same
  * position, options and clock readings give the same result. Bad options are a caller bug (the server
- * validates user input first), so they throw.
+ * validates the editor's input first), so they throw.
  */
 export function search(
 	position: Position,
