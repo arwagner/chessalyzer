@@ -1,5 +1,5 @@
 import { chosenChild, type Node, type SearchAlgorithm } from "./analysis.ts";
-import { type DepthPass, deepen } from "./deepen.ts";
+import { deepen, type PassResult } from "./deepen.ts";
 import { staticEvaluationAtPly } from "./evaluate.ts";
 import {
 	legalMoves,
@@ -18,7 +18,7 @@ type EvaluatedNode = Node & { readonly evaluation: number };
  */
 export const minimax: SearchAlgorithm = (position, { budgetMs }, { clock }) => {
 	const root = deepen(budgetMs, clock, (depth, outOfTime) =>
-		toDepth(position, depth, outOfTime),
+		minimaxPass(position, depth, outOfTime),
 	);
 	return {
 		chosenMove: chosenChild(root)?.move ?? null,
@@ -27,14 +27,14 @@ export const minimax: SearchAlgorithm = (position, { budgetMs }, { clock }) => {
 	};
 };
 
-function toDepth(
+function minimaxPass(
 	position: Position,
 	depth: number,
 	outOfTime: () => boolean,
-): ReturnType<DepthPass<EvaluatedNode>> {
+): PassResult<EvaluatedNode> | null {
 	// Lives in this call, not the module, so every pass numbers its nodes from 0.
 	let nextId = 0;
-	let cutOff = false;
+	let stoppedByDepth = false;
 
 	function visit(
 		fen: Position,
@@ -47,7 +47,7 @@ function toDepth(
 		const common = { id, fen, move, depth: remaining, entry: null, exit: null };
 		const ongoing = status(fen) === "ongoing";
 		if (remaining === 0 || !ongoing) {
-			if (ongoing) cutOff = true;
+			if (ongoing) stoppedByDepth = true;
 			return {
 				...common,
 				evaluation: staticEvaluationAtPly(fen, ply),
@@ -70,5 +70,5 @@ function toDepth(
 	}
 
 	const root = visit(position, null, depth, 0);
-	return root === null ? null : { root, cutOff };
+	return root === null ? null : { root, stoppedByDepth };
 }
