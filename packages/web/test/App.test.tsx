@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { parsePosition, type SearchResult, search } from "@chessalyzer/engine";
+import { parsePosition, type SearchResult, search } from "@chessalyzer/core";
 import {
 	cleanup,
 	fireEvent,
@@ -18,8 +18,14 @@ const MATE_IN_ONE = "6k1/5ppp/8/8/8/8/8/R5K1 w - - 0 1";
 function searched(fen: string): SearchResult {
 	const parsed = parsePosition(fen);
 	if (!parsed.ok) throw new Error(parsed.error);
-	// random's trace is one ply deep, so the stub answers with minimax's to give the tree nodes to expand.
-	return search(parsed.position, { algorithm: "minimax", depth: 2, seed: 0 });
+	// random's analysis is one ply deep, so the stub answers with minimax's to give the tree nodes to expand.
+	// The fake clock moves on 1 ms a reading, so 500 ms buys minimax a depth 2 search here.
+	let now = 0;
+	return search(
+		parsed.position,
+		{ algorithm: "minimax", budgetMs: 500, seed: 0 },
+		{ clock: () => now++ },
+	);
 }
 
 function respond(status: number, body: unknown): FetchFn {
@@ -47,7 +53,7 @@ async function submitSearch(
 	render(<App fetchFn={fetchFn} />);
 	fireEvent.change(screen.getByLabelText("FEN"), { target: { value: fen } });
 	fireEvent.click(screen.getByRole("button", { name: "Run" }));
-	await screen.findByRole("list", { name: "Search tree" });
+	await screen.findByRole("list", { name: "Analysis" });
 }
 
 describe("App", () => {
@@ -60,10 +66,13 @@ describe("App", () => {
 			"option",
 		);
 		expect(algorithms.map((o) => o.textContent)).toEqual(["random"]);
-		const depths = within(screen.getByLabelText("Depth")).getAllByRole(
-			"option",
-		);
-		expect(depths.map((o) => o.textContent)).toEqual(["1", "2", "3", "4", "5"]);
+		const budget = screen.getByLabelText("Budget (ms)");
+		expect(
+			within(budget)
+				.getAllByRole("option")
+				.map((o) => o.textContent),
+		).toEqual(["100", "250", "500", "1000", "2000", "5000"]);
+		expect(budget).toHaveProperty("value", "500");
 		expect(screen.getByLabelText("Seed")).toBeTruthy();
 	});
 
@@ -77,17 +86,22 @@ describe("App", () => {
 		fireEvent.change(screen.getByLabelText("FEN"), {
 			target: { value: MATE_IN_ONE },
 		});
-		fireEvent.change(screen.getByLabelText("Depth"), {
-			target: { value: "3" },
+		fireEvent.change(screen.getByLabelText("Budget (ms)"), {
+			target: { value: "2000" },
 		});
 		fireEvent.change(screen.getByLabelText("Seed"), { target: { value: "9" } });
 		fireEvent.click(screen.getByRole("button", { name: "Run" }));
-		await screen.findByRole("list", { name: "Search tree" });
+		await screen.findByRole("list", { name: "Analysis" });
 
 		expect(bodies).toEqual([
 			{
 				url: "/api/search",
-				body: { fen: MATE_IN_ONE, algorithm: "random", depth: 3, seed: 9 },
+				body: {
+					fen: MATE_IN_ONE,
+					algorithm: "random",
+					budgetMs: 2000,
+					seed: 9,
+				},
 			},
 		]);
 	});
@@ -97,9 +111,10 @@ describe("App", () => {
 		await submitSearch(respond(200, { ...result, seed: 1 }));
 		expect(board().dataset.fen).toBe(MATE_IN_ONE);
 
-		const first = result.trace.root.children[0];
+		const first = result.analysis.root.children[0];
 		const grandchild = first?.children[0];
-		if (!first?.move || !grandchild?.move) throw new Error("trace too shallow");
+		if (!first?.move || !grandchild?.move)
+			throw new Error("analysis too shallow");
 		expect(screen.queryByRole("button", { name: grandchild.move })).toBeNull();
 
 		fireEvent.click(
@@ -116,22 +131,24 @@ describe("App", () => {
 		const result = searched(MATE_IN_ONE);
 		await submitSearch(respond(200, { ...result, seed: 1 }));
 
-		expect(result.bestMove).toBe("Ra8#");
+		expect(result.chosenMove).toBe("Ra8#");
 		expect(rowOf("Ra8#").classList.contains("chosen")).toBe(true);
-		const others = result.trace.root.children.filter((c) => c.move !== "Ra8#");
+		const others = result.analysis.root.children.filter(
+			(c) => c.move !== "Ra8#",
+		);
 		expect(others.length).toBeGreaterThan(0);
 		for (const c of others) {
 			expect(rowOf(c.move ?? "").classList.contains("chosen")).toBe(false);
 		}
 	});
 
-	test("shows the best move, score and seed of the result", async () => {
+	test("shows the chosen move, evaluation, search depth and seed of the result", async () => {
 		const result = searched(MATE_IN_ONE);
 		await submitSearch(respond(200, { ...result, seed: 4321 }));
 
-		const line = screen.getByText(/Best move/);
+		const line = screen.getByText(/Chosen move/);
 		expect(line.textContent).toBe(
-			`Best move Ra8#, score ${result.score}, seed 4321`,
+			`Chosen move Ra8#, evaluation ${result.evaluation}, search depth 2, seed 4321`,
 		);
 	});
 
@@ -145,7 +162,7 @@ describe("App", () => {
 		expect((await screen.findByRole("alert")).textContent).toBe(
 			"invalid FEN: nonsense",
 		);
-		expect(screen.queryByRole("list", { name: "Search tree" })).toBeNull();
+		expect(screen.queryByRole("list", { name: "Analysis" })).toBeNull();
 	});
 
 	test("shows a network failure next to the form", async () => {

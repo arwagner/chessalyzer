@@ -1,4 +1,4 @@
-import { parsePosition, type SearchResult } from "@chessalyzer/engine";
+import { parsePosition, type SearchResult } from "@chessalyzer/core";
 import { describe, expect, test } from "vitest";
 import { type FetchFn, runSearch } from "../src/searchClient.ts";
 
@@ -8,9 +8,9 @@ const parsedStart = parsePosition(START);
 if (!parsedStart.ok) throw new Error(parsedStart.error);
 
 const RESULT: SearchResult = {
-	bestMove: "e4",
-	score: 0,
-	trace: {
+	chosenMove: "e4",
+	evaluation: 0,
+	analysis: {
 		root: {
 			id: 0,
 			fen: parsedStart.position,
@@ -18,7 +18,7 @@ const RESULT: SearchResult = {
 			depth: 1,
 			entry: null,
 			exit: null,
-			score: 0,
+			evaluation: 0,
 			pruned: false,
 			children: [],
 		},
@@ -51,7 +51,10 @@ function json(status: number, body: unknown): () => Promise<Response> {
 describe("runSearch request", () => {
 	test("sends one QUERY to /api/search with a JSON body", async () => {
 		const { fetchFn, calls } = stubFetch(json(200, RESULT));
-		await runSearch({ fen: START, algorithm: "minimax", depth: 2 }, fetchFn);
+		await runSearch(
+			{ fen: START, algorithm: "minimax", budgetMs: 200 },
+			fetchFn,
+		);
 
 		expect(calls).toHaveLength(1);
 		const [call] = calls;
@@ -61,21 +64,21 @@ describe("runSearch request", () => {
 		expect(JSON.parse(call?.init.body ?? "")).toEqual({
 			fen: START,
 			algorithm: "minimax",
-			depth: 2,
+			budgetMs: 200,
 		});
 	});
 
 	test("includes the seed when one is given", async () => {
 		const { fetchFn, calls } = stubFetch(json(200, RESULT));
 		await runSearch(
-			{ fen: START, algorithm: "alphabeta", depth: 3, seed: 42 },
+			{ fen: START, algorithm: "alphabeta", budgetMs: 300, seed: 42 },
 			fetchFn,
 		);
 
 		expect(JSON.parse(calls[0]?.init.body ?? "")).toEqual({
 			fen: START,
 			algorithm: "alphabeta",
-			depth: 3,
+			budgetMs: 300,
 			seed: 42,
 		});
 	});
@@ -85,7 +88,7 @@ describe("runSearch response", () => {
 	test("a 200 is parsed to the search result and the seed the server ran with", async () => {
 		const { fetchFn } = stubFetch(json(200, { ...RESULT, seed: 1234 }));
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "random", depth: 1 },
+			{ fen: START, algorithm: "random", budgetMs: 100 },
 			fetchFn,
 		);
 
@@ -102,7 +105,7 @@ describe("runSearch response", () => {
 	])("a 200 whose seed is %s is a server error", async (_, body) => {
 		const { fetchFn } = stubFetch(json(200, body));
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "random", depth: 1 },
+			{ fen: START, algorithm: "random", budgetMs: 100 },
 			fetchFn,
 		);
 
@@ -117,23 +120,26 @@ describe("runSearch response", () => {
 
 	test("a 400 is surfaced with the server's message", async () => {
 		const { fetchFn } = stubFetch(
-			json(400, { error: "depth must be from 1 to 5, got 9" }),
+			json(400, { error: "budgetMs must be from 1 to 5000, got 9000" }),
 		);
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 9 },
+			{ fen: START, algorithm: "minimax", budgetMs: 9000 },
 			fetchFn,
 		);
 
 		expect(outcome).toEqual({
 			ok: false,
-			error: { kind: "rejected", message: "depth must be from 1 to 5, got 9" },
+			error: {
+				kind: "rejected",
+				message: "budgetMs must be from 1 to 5000, got 9000",
+			},
 		});
 	});
 
 	test("another failing status is a server error carrying its message", async () => {
 		const { fetchFn } = stubFetch(json(500, { error: "boom" }));
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 1 },
+			{ fen: START, algorithm: "minimax", budgetMs: 100 },
 			fetchFn,
 		);
 
@@ -148,7 +154,7 @@ describe("runSearch response", () => {
 			async () => new Response("Bad Gateway", { status: 502 }),
 		);
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 1 },
+			{ fen: START, algorithm: "minimax", budgetMs: 100 },
 			fetchFn,
 		);
 
@@ -163,7 +169,7 @@ describe("runSearch response", () => {
 			async () => new Response("<html></html>", { status: 200 }),
 		);
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 1 },
+			{ fen: START, algorithm: "minimax", budgetMs: 100 },
 			fetchFn,
 		);
 
@@ -181,7 +187,7 @@ describe("runSearch response", () => {
 			Promise.reject(new TypeError("fetch failed")),
 		);
 		const outcome = await runSearch(
-			{ fen: START, algorithm: "minimax", depth: 1 },
+			{ fen: START, algorithm: "minimax", budgetMs: 100 },
 			fetchFn,
 		);
 

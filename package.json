@@ -3,17 +3,17 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"description": "Edit and study chess search algorithms in a UI",
+	"description": "Compose chess engines from components and compare them over suites of exemplars, in a UI",
 	"engines": {
 		"node": ">=24"
 	},
 	"workspaces": [
-		"packages/engine",
+		"packages/core",
 		"packages/server",
 		"packages/web"
 	],
 	"scripts": {
-		"typecheck": "tsc -p tsconfig.json && tsc -p packages/engine && tsc -p packages/server && tsc -p packages/web",
+		"typecheck": "tsc -p tsconfig.json && tsc -p packages/core && tsc -p packages/server && tsc -p packages/web",
 		"lint": "biome check .",
 		"test": "vitest run",
 		"start": "node packages/server/src/main.ts",

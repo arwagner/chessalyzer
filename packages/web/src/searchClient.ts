@@ -1,10 +1,11 @@
-import type { Algorithm, SearchResult } from "@chessalyzer/engine";
+import type { Algorithm, SearchResult } from "@chessalyzer/core";
 
 export type SearchRequest = {
 	/** Raw user input: the server validates it and answers a bad FEN with a 400. */
 	readonly fen: string;
 	readonly algorithm: Algorithm;
-	readonly depth: number;
+	/** The search budget in milliseconds; the server rejects one beyond its maximum. */
+	readonly budgetMs: number;
 	/** Optional because only the random algorithm uses it; left out of the body when not given. */
 	readonly seed?: number;
 };
@@ -78,19 +79,19 @@ export async function runSearch(
 }
 
 // A shallow check: the server is ours, so this guards against a proxy's or dev server's page, not a
-// malformed trace. The seed is required because the server always reports the one it ran with.
+// malformed analysis. The seed is required because the server always reports the one it ran with.
 function isSearchResult(
 	body: unknown,
 ): body is SearchResult & { readonly seed: number } {
 	const record = asRecord(body);
 	if (record === undefined) return false;
-	const { score, trace, seed } = record;
+	const { evaluation, analysis, seed } = record;
 	return (
-		typeof score === "number" &&
+		typeof evaluation === "number" &&
 		typeof seed === "number" &&
-		typeof trace === "object" &&
-		trace !== null &&
-		"root" in trace
+		typeof analysis === "object" &&
+		analysis !== null &&
+		"root" in analysis
 	);
 }
 

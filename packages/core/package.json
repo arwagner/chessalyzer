@@ -1,9 +1,9 @@
 {
-	"name": "@chessalyzer/engine",
+	"name": "@chessalyzer/core",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"description": "Pure TypeScript chess board, evaluation and search algorithms",
+	"description": "Pure TypeScript chess board, static evaluation and search",
 	"exports": {
 		".": "./src/index.ts"
 	},

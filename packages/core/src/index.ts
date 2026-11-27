@@ -1,9 +1,20 @@
 export {
-	evaluate,
-	evaluateAtPly,
-	MATE_SCORE,
+	type Algorithm,
+	type Analysis,
+	type Clock,
+	chosenChild,
+	type Node,
+	type SearchDeps,
+	type SearchOptions,
+	type SearchResult,
+	type Window,
+} from "./analysis.ts";
+export {
+	EVALUATION_BOUND,
+	MATE_EVALUATION,
 	PIECE_VALUES,
-	SCORE_BOUND,
+	staticEvaluation,
+	staticEvaluationAtPly,
 } from "./evaluate.ts";
 export {
 	legalMoves,
@@ -17,12 +28,3 @@ export {
 	status,
 } from "./position.ts";
 export { IMPLEMENTED_ALGORITHMS, search } from "./search.ts";
-export {
-	type Algorithm,
-	chosenChild,
-	type SearchOptions,
-	type SearchResult,
-	type Trace,
-	type TraceNode,
-	type Window,
-} from "./trace.ts";

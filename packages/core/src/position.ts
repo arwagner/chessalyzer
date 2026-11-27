@@ -1,4 +1,4 @@
-// The only module in the engine that touches chess.js, so the rest of the engine depends on this small
+// The only module in core that touches chess.js, so the rest of core depends on this small
 // interface and the board library can be swapped (or replaced by our own move generation) in one place.
 import { Chess, validateFen } from "chess.js";
 
@@ -6,7 +6,7 @@ declare const validated: unique symbol;
 
 /**
  * A FEN that `parsePosition` has accepted. Still a plain string, so it is JSON-safe and can go straight
- * into a trace; the brand only stops unchecked strings reaching functions that assume a valid board.
+ * into an analysis; the brand only stops unchecked strings reaching functions that assume a valid board.
  */
 export type Position = string & { readonly [validated]: true };
 
@@ -45,7 +45,7 @@ export function sideToMove(position: Position): Side {
 
 /**
  * Legal moves in SAN, sorted by UTF-16 code unit. Sorting ourselves rather than relying on chess.js's
- * generation order keeps traces reproducible across library versions; a plain sort (not localeCompare)
+ * generation order keeps analyses reproducible across library versions; a plain sort (not localeCompare)
  * keeps them identical across machines.
  */
 export function legalMoves(position: Position): string[] {

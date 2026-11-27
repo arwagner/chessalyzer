@@ -18,8 +18,9 @@ Node runs the TypeScript directly, so only erasable syntax: no enums, no namespa
 - Test first, at a seam. Time, the network and the filesystem come in as parameters or deps, never reached
   for inside the code that uses them.
 - Comments say why, not what.
-- Search code is pure and deterministic given its inputs, so a search can be replayed and inspected step by
-  step in the UI.
+- Search code is pure and deterministic given its inputs, and the clock counts as one of those inputs: it is
+  passed in, never read inside search code (see [the ADR](docs/adr/0001-time-search-budget.md)). So a search
+  can be replayed and inspected step by step in the UI.
 
 ## Leave alone
 

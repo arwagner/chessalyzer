@@ -1,3 +1,4 @@
+import type { SearchDeps } from "../src/analysis.ts";
 import { type Position, parsePosition } from "../src/position.ts";
 
 /** Test FENs are known good, so a rejection is a broken test, not a case to handle. */
@@ -16,3 +17,12 @@ export const SCHOLARS_MATE = parsed(
 );
 // Black to move, not in check, with no legal move.
 export const STALEMATE = parsed("7k/5Q2/6K1/8/8/8/8/8 b - - 0 1");
+
+/**
+ * A fake clock that moves on 1 ms each time it is read. Minimax reads it once per node it visits, so a
+ * budget of N ms lets a search visit about N nodes, the same on every machine.
+ */
+export function ticking(): SearchDeps {
+	let now = 0;
+	return { clock: () => now++ };
+}
