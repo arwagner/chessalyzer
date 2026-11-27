@@ -3,16 +3,17 @@ import {
 	IMPLEMENTED_ALGORITHMS,
 	type Position,
 	parsePosition,
-} from "@chessalyzer/engine";
+} from "@chessalyzer/core";
 
-// Each node at depth d has ~30 children, so the trace grows ~30^d; beyond 5 a response would be too big to
-// send or render.
-export const MAX_DEPTH = 5;
+// The analysis grows with how many nodes the engine visits in its budget. Minimax on chess.js visits a few
+// thousand nodes a second, so a longer budget would make a response too big to send or render.
+export const MAX_BUDGET_MS = 5000;
 
 export type SearchRequest = {
 	readonly position: Position;
 	readonly algorithm: Algorithm;
-	readonly depth: number;
+	/** The search budget, in milliseconds. */
+	readonly budgetMs: number;
 	/** Absent when the client left the server to pick one. */
 	readonly seed: number | undefined;
 };
@@ -21,7 +22,7 @@ export type RequestResult =
 	| { readonly ok: true; readonly request: SearchRequest }
 	| { readonly ok: false; readonly error: string };
 
-/** Checks a request body's text. User input, so every failure is a value, never a throw. */
+/** Checks a request body's text. Editor input, so every failure is a value, never a throw. */
 export function parseSearchRequest(text: string): RequestResult {
 	let body: unknown;
 	try {
@@ -32,7 +33,7 @@ export function parseSearchRequest(text: string): RequestResult {
 	if (typeof body !== "object" || body === null || Array.isArray(body)) {
 		return fail("request body must be a JSON object");
 	}
-	const { fen, algorithm, depth, seed } = body as Record<string, unknown>;
+	const { fen, algorithm, budgetMs, seed } = body as Record<string, unknown>;
 
 	if (typeof fen !== "string") return fail("fen must be a string");
 	const parsed = parsePosition(fen);
@@ -43,11 +44,11 @@ export function parseSearchRequest(text: string): RequestResult {
 			`algorithm must be one of ${IMPLEMENTED_ALGORITHMS.join(", ")}`,
 		);
 	}
-	if (typeof depth !== "number" || !Number.isInteger(depth)) {
-		return fail("depth must be an integer");
+	if (typeof budgetMs !== "number" || !Number.isInteger(budgetMs)) {
+		return fail("budgetMs must be an integer");
 	}
-	if (depth < 1 || depth > MAX_DEPTH) {
-		return fail(`depth must be from 1 to ${MAX_DEPTH}, got ${depth}`);
+	if (budgetMs < 1 || budgetMs > MAX_BUDGET_MS) {
+		return fail(`budgetMs must be from 1 to ${MAX_BUDGET_MS}, got ${budgetMs}`);
 	}
 	if (seed !== undefined && !Number.isSafeInteger(seed)) {
 		return fail("seed must be an integer");
@@ -58,7 +59,7 @@ export function parseSearchRequest(text: string): RequestResult {
 		request: {
 			position: parsed.position,
 			algorithm,
-			depth,
+			budgetMs,
 			seed: seed as number | undefined,
 		},
 	};

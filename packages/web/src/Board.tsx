@@ -2,7 +2,7 @@ import { boardSquares, emptySquares, glyph, squareName } from "./board.ts";
 
 const SIZE = "2.5rem";
 
-/** Draws a position. A malformed FEN draws an empty board rather than failing while the user types. */
+/** Draws a position. A malformed FEN draws an empty board rather than failing while the editor types. */
 export function Board({ fen }: { readonly fen: string }) {
 	const squares = boardSquares(fen) ?? emptySquares();
 	return (

@@ -8,7 +8,7 @@ const PIECES = /^[KQRBNPkqrbnp]$/;
 
 /**
  * Reads only the FEN's piece placement, since that is all the board draws. Null when the placement is
- * malformed: the board still has to draw something while the user is typing a FEN.
+ * malformed: the board still has to draw something while the editor is typing a FEN.
  */
 export function boardSquares(fen: string): Squares | null {
 	const placement = fen.trim().split(/\s+/)[0] ?? "";

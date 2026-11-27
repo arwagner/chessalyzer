@@ -1,10 +1,10 @@
 import {
+	type Analysis,
+	type Node,
 	type Position,
 	parsePosition,
 	play,
-	type Trace,
-	type TraceNode,
-} from "@chessalyzer/engine";
+} from "@chessalyzer/core";
 import { describe, expect, test } from "vitest";
 import {
 	collapseAll,
@@ -14,7 +14,7 @@ import {
 	selectNode,
 	toggleNode,
 	visibleRows,
-} from "../src/traceTree.ts";
+} from "../src/analysisTree.ts";
 
 const parsed = parsePosition(
 	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
@@ -24,14 +24,14 @@ const START = parsed.position;
 const E4 = play(START, "e4");
 const D4 = play(START, "d4");
 
-// Hand-built so each test can say exactly which rows it expects; scores are chosen, not searched.
+// Hand-built so each test can say exactly which rows it expects; evaluations are chosen, not searched.
 function node(
 	id: number,
 	fen: Position,
 	move: string | null,
-	score: number | null,
-	children: TraceNode[] = [],
-): TraceNode {
+	evaluation: number | null,
+	children: Node[] = [],
+): Node {
 	return {
 		id,
 		fen,
@@ -39,14 +39,14 @@ function node(
 		depth: 0,
 		entry: null,
 		exit: null,
-		score,
-		pruned: score === null,
+		evaluation,
+		pruned: evaluation === null,
 		children,
 	};
 }
 
 // White to move at the root picks e4 (30 beats 10); after e4, Black's best reply is e5 (30 beats 50).
-const trace: Trace = {
+const analysis: Analysis = {
 	root: node(0, START, null, 30, [
 		node(1, E4, "e4", 30, [
 			node(2, play(E4, "e5"), "e5", 30),
@@ -60,34 +60,34 @@ const trace: Trace = {
 };
 
 const ids = (expanded: Expanded) =>
-	visibleRows(trace, expanded).map((r) => r.id);
+	visibleRows(analysis, expanded).map((r) => r.id);
 
 describe("visibleRows", () => {
 	test("by default shows the root and its children, but not their children", () => {
-		expect(visibleRows(trace, initialExpanded(trace))).toEqual([
+		expect(visibleRows(analysis, initialExpanded(analysis))).toEqual([
 			{
 				id: 0,
-				level: 0,
+				ply: 0,
 				move: null,
-				score: 30,
+				evaluation: 30,
 				chosen: false,
 				hasChildren: true,
 				expanded: true,
 			},
 			{
 				id: 1,
-				level: 1,
+				ply: 1,
 				move: "e4",
-				score: 30,
+				evaluation: 30,
 				chosen: true,
 				hasChildren: true,
 				expanded: false,
 			},
 			{
 				id: 4,
-				level: 1,
+				ply: 1,
 				move: "d4",
-				score: 10,
+				evaluation: 10,
 				chosen: false,
 				hasChildren: true,
 				expanded: false,
@@ -95,9 +95,12 @@ describe("visibleRows", () => {
 		]);
 	});
 
-	test("lists an expanded node's children straight after it, one level deeper", () => {
-		const rows = visibleRows(trace, toggleNode(initialExpanded(trace), 1));
-		expect(rows.map((r) => [r.id, r.level])).toEqual([
+	test("lists an expanded node's children straight after it, one ply deeper", () => {
+		const rows = visibleRows(
+			analysis,
+			toggleNode(initialExpanded(analysis), 1),
+		);
+		expect(rows.map((r) => [r.id, r.ply])).toEqual([
 			[0, 0],
 			[1, 1],
 			[2, 2],
@@ -106,8 +109,8 @@ describe("visibleRows", () => {
 		]);
 	});
 
-	test("flags the first child scoring the same as its parent as the chosen move", () => {
-		const rows = visibleRows(trace, expandAll(trace));
+	test("flags the first child evaluated the same as its parent as the chosen move", () => {
+		const rows = visibleRows(analysis, expandAll(analysis));
 		expect(rows.filter((r) => r.chosen).map((r) => r.move)).toEqual([
 			"e4",
 			"e5",
@@ -116,14 +119,14 @@ describe("visibleRows", () => {
 	});
 
 	test("a leaf has no children", () => {
-		const rows = visibleRows(trace, expandAll(trace));
+		const rows = visibleRows(analysis, expandAll(analysis));
 		expect(rows.find((r) => r.id === 2)?.hasChildren).toBe(false);
 	});
 
-	test("a pruned node comes through with a null score and is never chosen", () => {
-		const rows = visibleRows(trace, expandAll(trace));
+	test("a pruned node comes through with a null evaluation and is never chosen", () => {
+		const rows = visibleRows(analysis, expandAll(analysis));
 		expect(rows.find((r) => r.id === 6)).toMatchObject({
-			score: null,
+			evaluation: null,
 			chosen: false,
 		});
 	});
@@ -131,34 +134,34 @@ describe("visibleRows", () => {
 
 describe("expand and collapse", () => {
 	test("toggling a node shows its children, and toggling it again hides them", () => {
-		const opened = toggleNode(initialExpanded(trace), 4);
+		const opened = toggleNode(initialExpanded(analysis), 4);
 		expect(ids(opened)).toEqual([0, 1, 4, 5, 6]);
 		expect(ids(toggleNode(opened, 4))).toEqual([0, 1, 4]);
 	});
 
 	test("toggling does not change the state it was given", () => {
-		const before = initialExpanded(trace);
+		const before = initialExpanded(analysis);
 		toggleNode(before, 4);
 		expect(ids(before)).toEqual([0, 1, 4]);
 	});
 
 	test("collapsing a node hides its whole subtree, and reopening it restores what was open below", () => {
-		const deep = toggleNode(toggleNode(initialExpanded(trace), 1), 0);
+		const deep = toggleNode(toggleNode(initialExpanded(analysis), 1), 0);
 		expect(ids(deep)).toEqual([0]);
 		expect(ids(toggleNode(deep, 0))).toEqual([0, 1, 2, 3, 4]);
 	});
 
 	test("expand all shows every node", () => {
-		expect(ids(expandAll(trace))).toEqual([0, 1, 2, 3, 4, 5, 6]);
+		expect(ids(expandAll(analysis))).toEqual([0, 1, 2, 3, 4, 5, 6]);
 	});
 
 	test("collapse all leaves only the root", () => {
-		expect(visibleRows(trace, collapseAll())).toEqual([
+		expect(visibleRows(analysis, collapseAll())).toEqual([
 			{
 				id: 0,
-				level: 0,
+				ply: 0,
 				move: null,
-				score: 30,
+				evaluation: 30,
 				chosen: false,
 				hasChildren: true,
 				expanded: false,
@@ -169,11 +172,11 @@ describe("expand and collapse", () => {
 
 describe("selectNode", () => {
 	test("gives the FEN of the selected node, however deep", () => {
-		expect(selectNode(trace, 1)).toBe(E4);
-		expect(selectNode(trace, 6)).toBe(play(D4, "Nf6"));
+		expect(selectNode(analysis, 1)).toBe(E4);
+		expect(selectNode(analysis, 6)).toBe(play(D4, "Nf6"));
 	});
 
-	test("gives the root FEN for an id not in the trace", () => {
-		expect(selectNode(trace, 99)).toBe(START);
+	test("gives the root FEN for an id not in the analysis", () => {
+		expect(selectNode(analysis, 99)).toBe(START);
 	});
 });

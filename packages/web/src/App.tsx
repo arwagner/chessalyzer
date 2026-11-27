@@ -1,23 +1,23 @@
-import type { Algorithm, SearchResult } from "@chessalyzer/engine";
+import type { Algorithm, SearchResult } from "@chessalyzer/core";
 import { type FormEvent, useState } from "react";
-import { Board } from "./Board.tsx";
-import { type FetchFn, runSearch } from "./searchClient.ts";
-import { TraceTree } from "./TraceTree.tsx";
+import { AnalysisTree } from "./AnalysisTree.tsx";
 import {
 	type Expanded,
 	initialExpanded,
 	selectNode,
 	toggleNode,
-} from "./traceTree.ts";
+} from "./analysisTree.ts";
+import { Board } from "./Board.tsx";
+import { type FetchFn, runSearch } from "./searchClient.ts";
 
 export const START_FEN =
 	"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-/** Only random for now, as the ticket asks, though the engine also runs minimax; more join in later tickets. */
+/** Only random for now, as the ticket asks, though search also runs minimax; more join in later tickets. */
 const ALGORITHMS: readonly Algorithm[] = ["random"];
 
-// The server rejects anything deeper: the trace grows too big to send or draw.
-const DEPTHS = [1, 2, 3, 4, 5] as const;
+// In milliseconds. The server rejects a longer budget: the analysis grows too big to send or draw.
+const BUDGETS = [100, 250, 500, 1000, 2000, 5000] as const;
 
 type Shown = {
 	readonly result: SearchResult;
@@ -31,7 +31,7 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 	const [fen, setFen] = useState(START_FEN);
 	const [algorithm, setAlgorithm] = useState<Algorithm>("random");
 	const [seedText, setSeedText] = useState("");
-	const [depth, setDepth] = useState(1);
+	const [budgetMs, setBudgetMs] = useState<number>(500);
 	const [running, setRunning] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [shown, setShown] = useState<Shown | null>(null);
@@ -41,18 +41,18 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 		setRunning(true);
 		const seed = seedText.trim() === "" ? undefined : Number(seedText);
 		const outcome = await runSearch(
-			{ fen, algorithm, depth, ...(seed === undefined ? {} : { seed }) },
+			{ fen, algorithm, budgetMs, ...(seed === undefined ? {} : { seed }) },
 			fetchFn,
 		);
 		setRunning(false);
 		if (outcome.ok) {
-			const { trace } = outcome.result;
+			const { analysis } = outcome.result;
 			setError(null);
 			setShown({
 				result: outcome.result,
 				seed: outcome.seed,
-				expanded: initialExpanded(trace),
-				selected: trace.root.id,
+				expanded: initialExpanded(analysis),
+				selected: analysis.root.id,
 			});
 		} else {
 			setError(outcome.error.message);
@@ -61,8 +61,10 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 		}
 	}
 
-	// Before any search the board previews what the user typed.
-	const boardFen = shown ? selectNode(shown.result.trace, shown.selected) : fen;
+	// Before any search the board previews what the editor typed.
+	const boardFen = shown
+		? selectNode(shown.result.analysis, shown.selected)
+		: fen;
 
 	return (
 		<main style={{ fontFamily: "sans-serif", padding: "1rem" }}>
@@ -98,14 +100,14 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 					</select>
 				</label>
 				<label>
-					Depth{" "}
+					Budget (ms){" "}
 					<select
-						value={depth}
-						onChange={(e) => setDepth(Number(e.target.value))}
+						value={budgetMs}
+						onChange={(e) => setBudgetMs(Number(e.target.value))}
 					>
-						{DEPTHS.map((d) => (
-							<option key={d} value={d}>
-								{d}
+						{BUDGETS.map((b) => (
+							<option key={b} value={b}>
+								{b}
 							</option>
 						))}
 					</select>
@@ -131,16 +133,17 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 			</form>
 			{shown && (
 				<p>
-					Best move <strong>{shown.result.bestMove ?? "none"}</strong>, score{" "}
-					<strong>{shown.result.score}</strong>, seed{" "}
+					Chosen move <strong>{shown.result.chosenMove ?? "none"}</strong>,
+					evaluation <strong>{shown.result.evaluation}</strong>, search depth{" "}
+					<strong>{shown.result.analysis.root.depth}</strong>, seed{" "}
 					<strong>{shown.seed}</strong>
 				</p>
 			)}
 			<div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
 				<Board fen={boardFen} />
 				{shown && (
-					<TraceTree
-						trace={shown.result.trace}
+					<AnalysisTree
+						analysis={shown.result.analysis}
 						expanded={shown.expanded}
 						selected={shown.selected}
 						onToggle={(id) =>

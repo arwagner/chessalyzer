@@ -1,8 +1,8 @@
-import type { Trace } from "@chessalyzer/engine";
-import { type Expanded, visibleRows } from "./traceTree.ts";
+import type { Analysis } from "@chessalyzer/core";
+import { type Expanded, visibleRows } from "./analysisTree.ts";
 
-export type TraceTreeProps = {
-	readonly trace: Trace;
+export type AnalysisTreeProps = {
+	readonly analysis: Analysis;
 	readonly expanded: Expanded;
 	readonly selected: number;
 	readonly onToggle: (id: number) => void;
@@ -11,24 +11,24 @@ export type TraceTreeProps = {
 
 const ROOT_LABEL = "start";
 
-/** Draws the rows the trace tree model gives it; which rows show and which is chosen is decided there. */
-export function TraceTree({
-	trace,
+/** Draws the rows the analysis tree model gives it; which rows show and which is chosen is decided there. */
+export function AnalysisTree({
+	analysis,
 	expanded,
 	selected,
 	onToggle,
 	onSelect,
-}: TraceTreeProps) {
+}: AnalysisTreeProps) {
 	return (
-		<ul aria-label="Search tree" style={{ listStyle: "none", padding: 0 }}>
-			{visibleRows(trace, expanded).map((row) => {
+		<ul aria-label="Analysis" style={{ listStyle: "none", padding: 0 }}>
+			{visibleRows(analysis, expanded).map((row) => {
 				const label = row.move ?? ROOT_LABEL;
 				return (
 					<li
 						key={row.id}
 						className={row.chosen ? "chosen" : undefined}
 						style={{
-							paddingLeft: `${row.level * 1.25}rem`,
+							paddingLeft: `${row.ply * 1.25}rem`,
 							background: row.chosen ? "#fff3b0" : undefined,
 							fontWeight: row.chosen ? "bold" : undefined,
 						}}
@@ -53,7 +53,7 @@ export function TraceTree({
 						>
 							{label}
 						</button>{" "}
-						<span>{row.score === null ? "–" : row.score}</span>
+						<span>{row.evaluation === null ? "–" : row.evaluation}</span>
 					</li>
 				);
 			})}

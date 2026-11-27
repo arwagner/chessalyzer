@@ -3,13 +3,13 @@
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
-	"description": "Vite + React UI for running searches and stepping through traces",
+	"description": "Vite + React UI for running searches and stepping through their analyses",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build"
 	},
 	"dependencies": {
-		"@chessalyzer/engine": "0.1.0",
+		"@chessalyzer/core": "0.1.0",
 		"react": "19.3.1",
 		"react-dom": "19.3.1"
 	},

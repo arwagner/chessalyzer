@@ -5,14 +5,16 @@ import {
 	type ServerResponse,
 } from "node:http";
 import type { AddressInfo } from "node:net";
-import { search as engineSearch } from "@chessalyzer/engine";
+import { type Clock, search as coreSearch } from "@chessalyzer/core";
 import { parseSearchRequest } from "./request.ts";
 
 export type ServerDeps = {
 	/** Where a seed comes from when the request has none. Injected so tests can pin it. */
 	readonly newSeed: () => number;
-	/** Defaults to the engine's; injectable so tests can make it fail. */
-	readonly search?: typeof engineSearch;
+	/** The clock every search measures its budget against. Injected so tests can run searches on fake time. */
+	readonly clock: Clock;
+	/** Defaults to core's; injectable so tests can make it fail. */
+	readonly search?: typeof coreSearch;
 };
 
 export type RunningServer = {
@@ -76,14 +78,14 @@ async function handle(
 		sendJson(res, 400, { error: parsed.error });
 		return;
 	}
-	const { position, algorithm, depth } = parsed.request;
+	const { position, algorithm, budgetMs } = parsed.request;
 	const seed = parsed.request.seed ?? deps.newSeed();
 	// Echoed so any response, including one whose seed the server picked, can be replayed exactly.
-	const result = (deps.search ?? engineSearch)(position, {
-		algorithm,
-		depth,
-		seed,
-	});
+	const result = (deps.search ?? coreSearch)(
+		position,
+		{ algorithm, budgetMs, seed },
+		{ clock: deps.clock },
+	);
 	sendJson(res, 200, { ...result, seed });
 }
 

@@ -1,20 +1,22 @@
 # chessalyzer
 
-Edit and study chess search algorithms in a UI. TypeScript frontend and backend.
+Editors compose chess engines from components, run them on positions, and compare them over suites of
+exemplars, in a UI. TypeScript frontend and backend.
 
 Work is done by [aint-farm](https://github.com/arwagner/aint-farm): label an issue `agent:explore`,
 `agent:implement` or `agent:implement-spec`, or a PR `agent:review`. See `.factory.yml`.
 
-The words used across code, issues and specs (position, search, trace, pruned, ...) are defined in
-[GLOSSARY.md](GLOSSARY.md).
+The words used across code, issues and specs (position, engine, search budget, analysis, pruned node, ...)
+are defined in [GLOSSARY.md](GLOSSARY.md).
 
 ## Layout
 
 npm workspaces:
 
-- `packages/engine` (`@chessalyzer/engine`): pure TypeScript board, evaluation and search, on top of
-  `chess.js`. No DOM or Node APIs.
-- `packages/server` (`@chessalyzer/server`): Node HTTP API over the engine.
+- `packages/core` (`@chessalyzer/core`): pure TypeScript board, static evaluation and search, on top of
+  `chess.js`. No DOM or Node APIs. Search reads time only from a clock it is passed, so it stays
+  deterministic given its inputs.
+- `packages/server` (`@chessalyzer/server`): Node HTTP API over core.
 - `packages/web` (`@chessalyzer/web`): Vite + React UI.
 
 The root `typecheck`, `lint` and `test` scripts cover all three; `npm test` is one Vitest run over every
@@ -39,10 +41,12 @@ Leave `HOST` unset for `npm run dev`: the server would bind it, but the proxy al
 
 `npm start` runs the API on `127.0.0.1:3001` (override with `PORT`/`HOST`, or `--port <n>`).
 
-`QUERY /api/search` takes a JSON body `{ fen, algorithm, depth, seed? }` (`algorithm` one the engine
-implements, today `random` and `minimax`; `depth` an integer from 1 to 5) and returns the search result plus the
-`seed` used; send that seed back to replay the same search. A bad body is a 400 with `{ "error": "..." }`,
-other methods are a 405.
+`QUERY /api/search` takes a JSON body `{ fen, algorithm, budgetMs, seed? }` (`algorithm` one that core
+implements, today `random` and `minimax`; `budgetMs` the search budget, an integer number of milliseconds from
+1 to 5000) and returns the search result (`chosenMove`, `evaluation` and `analysis`) plus the `seed` used. The
+engine picks its own search depth within the budget. The server measures budgets on the real clock, so sending
+the seed back replays the same random choices, but the search may reach a different depth on a slower or busier
+machine. A bad body is a 400 with `{ "error": "..." }`, other methods are a 405.
 QUERY is the HTTP method for a safe, idempotent request with a body: `fetch(url, { method: "QUERY", body })`.
 
 ## Web
