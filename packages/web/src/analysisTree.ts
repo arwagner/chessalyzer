@@ -15,11 +15,8 @@ export type Expanded = ReadonlySet<number>;
 /** One line of the tree view. */
 export type TreeRow = {
 	readonly id: number;
-	/**
-	 * How far below the root this node sits (the root is 0). Not the glossary's depth, which counts plies
-	 * left to search and is on the node.
-	 */
-	readonly level: number;
+	/** The node's ply, which the view indents by. Not its depth, which counts plies left to search. */
+	readonly ply: number;
 	readonly move: string | null;
 	readonly evaluation: number | null;
 	/** The move the search settled on from the parent: see `chosenChild`. Never true for the root. */
@@ -55,11 +52,11 @@ export function collapseAll(): Expanded {
 /** Rows in display order: each node, then its children if it is expanded, depth first in move order. */
 export function visibleRows(analysis: Analysis, expanded: Expanded): TreeRow[] {
 	const rows: TreeRow[] = [];
-	function add(n: Node, level: number, chosen: boolean): void {
+	function add(n: Node, ply: number, chosen: boolean): void {
 		const open = expanded.has(n.id);
 		rows.push({
 			id: n.id,
-			level,
+			ply,
 			move: n.move,
 			evaluation: n.evaluation,
 			chosen,
@@ -68,7 +65,7 @@ export function visibleRows(analysis: Analysis, expanded: Expanded): TreeRow[] {
 		});
 		if (!open) return;
 		const pick = chosenChild(n);
-		for (const c of n.children) add(c, level + 1, c === pick);
+		for (const c of n.children) add(c, ply + 1, c === pick);
 	}
 	add(analysis.root, 0, false);
 	return rows;

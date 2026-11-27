@@ -28,7 +28,7 @@ export function AnalysisTree({
 						key={row.id}
 						className={row.chosen ? "chosen" : undefined}
 						style={{
-							paddingLeft: `${row.level * 1.25}rem`,
+							paddingLeft: `${row.ply * 1.25}rem`,
 							background: row.chosen ? "#fff3b0" : undefined,
 							fontWeight: row.chosen ? "bold" : undefined,
 						}}

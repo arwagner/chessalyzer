@@ -67,7 +67,7 @@ describe("visibleRows", () => {
 		expect(visibleRows(analysis, initialExpanded(analysis))).toEqual([
 			{
 				id: 0,
-				level: 0,
+				ply: 0,
 				move: null,
 				evaluation: 30,
 				chosen: false,
@@ -76,7 +76,7 @@ describe("visibleRows", () => {
 			},
 			{
 				id: 1,
-				level: 1,
+				ply: 1,
 				move: "e4",
 				evaluation: 30,
 				chosen: true,
@@ -85,7 +85,7 @@ describe("visibleRows", () => {
 			},
 			{
 				id: 4,
-				level: 1,
+				ply: 1,
 				move: "d4",
 				evaluation: 10,
 				chosen: false,
@@ -95,12 +95,12 @@ describe("visibleRows", () => {
 		]);
 	});
 
-	test("lists an expanded node's children straight after it, one level deeper", () => {
+	test("lists an expanded node's children straight after it, one ply deeper", () => {
 		const rows = visibleRows(
 			analysis,
 			toggleNode(initialExpanded(analysis), 1),
 		);
-		expect(rows.map((r) => [r.id, r.level])).toEqual([
+		expect(rows.map((r) => [r.id, r.ply])).toEqual([
 			[0, 0],
 			[1, 1],
 			[2, 2],
@@ -159,7 +159,7 @@ describe("expand and collapse", () => {
 		expect(visibleRows(analysis, collapseAll())).toEqual([
 			{
 				id: 0,
-				level: 0,
+				ply: 0,
 				move: null,
 				evaluation: 30,
 				chosen: false,
