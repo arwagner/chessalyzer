@@ -88,7 +88,8 @@ The depth of the root: how far a search looks ahead. Chosen by the engine, not g
 
 **Search**:
 Running an engine on a position for a given search budget. Deterministic given its inputs, the clock among
-them: the same position, engine, budget, seed and clock readings give the same search result, analysis included.
+them: the same position, engine, budget, seed and clock readings give the same search result, analysis
+included.
 
 **Seed**:
 An integer a search is given so it can be replayed exactly. Engines that make random choices, such as
