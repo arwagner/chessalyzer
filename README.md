@@ -54,3 +54,12 @@ QUERY is the HTTP method for a safe, idempotent request with a body: `fetch(url,
 `npm run dev` (see above) is the easy way to run the UI. To run it on its own, start the server (`npm start`)
 and then `npm run dev -w @chessalyzer/web`, which serves the UI on <http://localhost:5173> and forwards `/api`
 to `127.0.0.1:3001`.
+
+## Deploy
+
+Every push to main deploys to <https://chessalyzer.vawagners.cloud>. `.github/workflows/deploy.yml` runs the
+checks above, then sends the commit to the box over an SSH key that can only run millwright's
+`scripts/chessalyzer-deploy.sh` (github.com/arwagner/millwright; its README's Chessalyzer section has the
+rest). On the box, `Dockerfile` builds two images: `api` (the server) and `web` (the built UI, served as static
+files). Caddy sends `/api/*` to the first and everything else to the second. If the new release does not
+answer a search and serve the page, the box rolls back to the previous one and the workflow fails.
