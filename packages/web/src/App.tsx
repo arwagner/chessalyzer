@@ -67,92 +67,158 @@ export function App({ fetchFn }: { readonly fetchFn: FetchFn }) {
 		: fen;
 
 	return (
-		<main style={{ fontFamily: "sans-serif", padding: "1rem" }}>
-			<h1>chessalyzer</h1>
-			<form
-				onSubmit={run}
-				style={{
-					display: "flex",
-					flexWrap: "wrap",
-					gap: "0.5rem",
-					alignItems: "center",
-				}}
-			>
-				<label>
-					FEN{" "}
-					<input
-						value={fen}
-						onChange={(e) => setFen(e.target.value)}
-						size={60}
-					/>
-				</label>
-				<label>
-					Algorithm{" "}
-					<select
-						value={algorithm}
-						onChange={(e) => setAlgorithm(e.target.value as Algorithm)}
-					>
-						{ALGORITHMS.map((a) => (
-							<option key={a} value={a}>
-								{a}
-							</option>
-						))}
-					</select>
-				</label>
-				<label>
-					Budget (ms){" "}
-					<select
-						value={budgetMs}
-						onChange={(e) => setBudgetMs(Number(e.target.value))}
-					>
-						{BUDGETS.map((b) => (
-							<option key={b} value={b}>
-								{b}
-							</option>
-						))}
-					</select>
-				</label>
-				<label>
-					Seed{" "}
-					<input
-						value={seedText}
-						onChange={(e) => setSeedText(e.target.value)}
-						inputMode="numeric"
-						placeholder="server picks"
-						size={12}
-					/>
-				</label>
-				<button type="submit" disabled={running}>
-					{running ? "Running…" : "Run"}
-				</button>
-				{error !== null && (
-					<p role="alert" style={{ color: "#b00020", margin: 0 }}>
-						{error}
-					</p>
-				)}
-			</form>
-			{shown && (
-				<p>
-					Chosen move <strong>{shown.result.chosenMove ?? "none"}</strong>,
-					evaluation <strong>{shown.result.evaluation}</strong>, search depth{" "}
-					<strong>{shown.result.analysis.root.depth}</strong>, seed{" "}
-					<strong>{shown.seed}</strong>
-				</p>
-			)}
-			<div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
-				<Board fen={boardFen} />
-				{shown && (
-					<AnalysisTree
-						analysis={shown.result.analysis}
-						expanded={shown.expanded}
-						selected={shown.selected}
-						onToggle={(id) =>
-							setShown({ ...shown, expanded: toggleNode(shown.expanded, id) })
-						}
-						onSelect={(id) => setShown({ ...shown, selected: id })}
-					/>
-				)}
-			</div>
-		</main>
+		<>
+			<header className="masthead">
+				<div className="masthead-inner">
+					<a className="brand" href="#workspace">
+						<span className="brand-mark" aria-hidden="true" />
+						chessalyzer
+					</a>
+					<nav aria-label="Workspace sections">
+						<a href="#position">Position</a>
+						<a href="#search">Search</a>
+						<a href="#analysis">Analysis</a>
+					</nav>
+				</div>
+			</header>
+			<main id="workspace" className="workspace">
+				<h1>Analysis workspace</h1>
+				<div className="workspace-grid">
+					<Board fen={boardFen} />
+					<div className="inspector">
+						<section id="search" className="panel">
+							<div className="panel-heading">
+								<h2>Search setup</h2>
+							</div>
+							<form onSubmit={run}>
+								<div className="field">
+									<label htmlFor="fen">FEN</label>
+									<textarea
+										id="fen"
+										rows={2}
+										value={fen}
+										onChange={(e) => setFen(e.target.value)}
+										spellCheck={false}
+										autoCapitalize="none"
+									/>
+								</div>
+								<div className="field-pair">
+									<div className="field">
+										<label htmlFor="algorithm">Algorithm</label>
+										<select
+											id="algorithm"
+											value={algorithm}
+											onChange={(e) =>
+												setAlgorithm(e.target.value as Algorithm)
+											}
+										>
+											{ALGORITHMS.map((a) => (
+												<option key={a} value={a}>
+													{a}
+												</option>
+											))}
+										</select>
+									</div>
+									<div className="field">
+										<label htmlFor="budget">Budget (ms)</label>
+										<select
+											id="budget"
+											value={budgetMs}
+											onChange={(e) => setBudgetMs(Number(e.target.value))}
+										>
+											{BUDGETS.map((b) => (
+												<option key={b} value={b}>
+													{b}
+												</option>
+											))}
+										</select>
+									</div>
+								</div>
+								<div className="field">
+									<label htmlFor="seed">Seed</label>
+									<input
+										id="seed"
+										value={seedText}
+										onChange={(e) => setSeedText(e.target.value)}
+										inputMode="numeric"
+										placeholder="Automatic"
+									/>
+								</div>
+								<button className="run" type="submit" disabled={running}>
+									<span className="play" aria-hidden="true" />
+									{running ? "Running…" : "Run search"}
+								</button>
+								{error !== null && (
+									<p className="error" role="alert">
+										{error}
+									</p>
+								)}
+							</form>
+						</section>
+						<section id="analysis" className="panel">
+							<div className="panel-heading">
+								<h2>Analysis</h2>
+							</div>
+							{shown ? (
+								<>
+									<section aria-label="Search result">
+										<dl className="result">
+											<div>
+												<dt>Chosen move</dt>
+												<dd>{shown.result.chosenMove ?? "None"}</dd>
+											</div>
+											<div>
+												<dt>Evaluation</dt>
+												<dd>{shown.result.evaluation} cp</dd>
+											</div>
+											<div>
+												<dt>Search depth</dt>
+												<dd>{shown.result.analysis.root.depth}</dd>
+											</div>
+											<div>
+												<dt>Seed</dt>
+												<dd>{shown.seed}</dd>
+											</div>
+										</dl>
+									</section>
+									<AnalysisTree
+										analysis={shown.result.analysis}
+										expanded={shown.expanded}
+										selected={shown.selected}
+										onToggle={(id) =>
+											setShown({
+												...shown,
+												expanded: toggleNode(shown.expanded, id),
+											})
+										}
+										onSelect={(id) => setShown({ ...shown, selected: id })}
+									/>
+								</>
+							) : (
+								<div className="empty-analysis">
+									<svg
+										aria-hidden="true"
+										viewBox="0 0 32 32"
+										fill="none"
+										stroke="currentColor"
+										strokeWidth="1.7"
+									>
+										<path d="M8 9v14m0-6h10a6 6 0 0 0 6-6V9" />
+										<circle cx="8" cy="6" r="3" />
+										<circle cx="8" cy="26" r="3" />
+										<circle cx="24" cy="6" r="3" />
+									</svg>
+									<p>
+										{running
+											? "Searching the position…"
+											: "Run a search to explore its variations."}
+									</p>
+								</div>
+							)}
+						</section>
+					</div>
+				</div>
+			</main>
+		</>
 	);
 }

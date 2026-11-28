@@ -20,22 +20,19 @@ export function AnalysisTree({
 	onSelect,
 }: AnalysisTreeProps) {
 	return (
-		<ul aria-label="Analysis" style={{ listStyle: "none", padding: 0 }}>
+		<ul aria-label="Analysis" className="analysis-tree">
 			{visibleRows(analysis, expanded).map((row) => {
 				const label = row.move ?? ROOT_LABEL;
 				return (
 					<li
 						key={row.id}
 						className={row.chosen ? "chosen" : undefined}
-						style={{
-							paddingLeft: `${row.ply * 1.25}rem`,
-							background: row.chosen ? "#fff3b0" : undefined,
-							fontWeight: row.chosen ? "bold" : undefined,
-						}}
+						style={{ paddingLeft: `${row.ply * 0.75}rem` }}
 					>
 						{row.hasChildren ? (
 							<button
 								type="button"
+								className="toggle"
 								aria-label={`${row.expanded ? "Collapse" : "Expand"} ${label}`}
 								aria-expanded={row.expanded}
 								onClick={() => onToggle(row.id)}
@@ -44,16 +41,20 @@ export function AnalysisTree({
 							</button>
 						) : (
 							// Keeps leaves' moves lined up with their siblings that have a toggle.
-							<span style={{ display: "inline-block", width: "1.6rem" }} />
+							<span className="toggle-space" />
 						)}{" "}
 						<button
 							type="button"
+							className="move"
 							aria-pressed={row.id === selected}
 							onClick={() => onSelect(row.id)}
 						>
 							{label}
 						</button>{" "}
-						<span>{row.evaluation === null ? "–" : row.evaluation}</span>
+						{row.chosen && <span className="chosen-label">Chosen</span>}
+						<span className="node-evaluation">
+							{row.evaluation === null ? "–" : `${row.evaluation} cp`}
+						</span>
 					</li>
 				);
 			})}

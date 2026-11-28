@@ -52,7 +52,7 @@ async function submitSearch(
 ): Promise<void> {
 	render(<App fetchFn={fetchFn} />);
 	fireEvent.change(screen.getByLabelText("FEN"), { target: { value: fen } });
-	fireEvent.click(screen.getByRole("button", { name: "Run" }));
+	fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 	await screen.findByRole("list", { name: "Analysis" });
 }
 
@@ -76,6 +76,17 @@ describe("App", () => {
 		expect(screen.getByLabelText("Seed")).toBeTruthy();
 	});
 
+	test("labels the side to move as the position preview changes", () => {
+		render(<App fetchFn={respond(500, {})} />);
+		expect(within(board()).getByText("White to move")).toBeTruthy();
+		fireEvent.change(screen.getByLabelText("FEN"), {
+			target: { value: START_FEN.replace(" w ", " b ") },
+		});
+		expect(within(board()).getByText("Black to move")).toBeTruthy();
+		fireEvent.change(screen.getByLabelText("FEN"), { target: { value: "?" } });
+		expect(within(board()).queryByText(/to move/)).toBeNull();
+	});
+
 	test("sends the form's values to the search client", async () => {
 		const bodies: unknown[] = [];
 		const fetchFn: FetchFn = async (url, init) => {
@@ -90,7 +101,7 @@ describe("App", () => {
 			target: { value: "2000" },
 		});
 		fireEvent.change(screen.getByLabelText("Seed"), { target: { value: "9" } });
-		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 		await screen.findByRole("list", { name: "Analysis" });
 
 		expect(bodies).toEqual([
@@ -146,10 +157,17 @@ describe("App", () => {
 		const result = searched(MATE_IN_ONE);
 		await submitSearch(respond(200, { ...result, seed: 4321 }));
 
-		const line = screen.getByText(/Chosen move/);
-		expect(line.textContent).toBe(
-			`Chosen move Ra8#, evaluation ${result.evaluation}, search depth 2, seed 4321`,
-		);
+		const summary = screen.getByRole("region", { name: "Search result" });
+		for (const [label, value] of [
+			["Chosen move", "Ra8#"],
+			["Evaluation", `${result.evaluation} cp`],
+			["Search depth", "2"],
+			["Seed", "4321"],
+		] as const) {
+			expect(
+				within(summary).getByText(label).nextElementSibling?.textContent,
+			).toBe(value);
+		}
 	});
 
 	test("shows the server's message when it rejects the search with a 400", async () => {
@@ -157,7 +175,7 @@ describe("App", () => {
 		fireEvent.change(screen.getByLabelText("FEN"), {
 			target: { value: "nonsense" },
 		});
-		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 
 		expect((await screen.findByRole("alert")).textContent).toBe(
 			"invalid FEN: nonsense",
@@ -169,7 +187,7 @@ describe("App", () => {
 		render(
 			<App fetchFn={() => Promise.reject(new TypeError("fetch failed"))} />,
 		);
-		fireEvent.click(screen.getByRole("button", { name: "Run" }));
+		fireEvent.click(screen.getByRole("button", { name: "Run search" }));
 
 		expect((await screen.findByRole("alert")).textContent).toBe("fetch failed");
 	});
